@@ -3,1779 +3,584 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sorigin — EPC Automated Proposal · BRD</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>SORIGIN — Solar Proposal Generator</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 14px; }
-
-:root {
-  /* ── Exact colors from screenshot ── */
-  --green-dark:    #1B4332;   /* topbar bg */
-  --green-mid:     #2D6A4F;   /* topbar hover, active sidebar dot */
-  --green-accent:  #40916C;   /* buttons, active underline */
-  --green-bright:  #52B788;   /* highlights */
-  --green-light:   #D8F3DC;   /* hero bg tint, active sidebar row bg */
-  --green-pale:    #F0FAF4;   /* page/hero bg */
-  --green-text:    #1B4332;   /* bold green text (title "Proposal") */
-
-  --white:         #FFFFFF;
-  --sidebar-bg:    #FFFFFF;
-  --topbar-bg:     #1B4332;
-  --hero-bg:       #EAF7EE;
-  --page-bg:       #F7FBF8;
-  --card-bg:       #FFFFFF;
-  --card-border:   #D1E8D8;
-  --card-border-strong: #B7DCBF;
-
-  --text-dark:     #1A2E22;
-  --text-body:     #2D4A38;
-  --text-mid:      #4A7060;
-  --text-muted:    #7A9E8A;
-  --text-topbar:   #FFFFFF;
-  --text-topbar-muted: rgba(255,255,255,0.65);
-
-  --sidebar-w: 248px;
-  --topbar-h:  52px;
-
-  --radius: 10px;
-  --radius-sm: 6px;
-  --font: 'Inter', -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
-
-  /* status colors matching site */
-  --red-dot: #EF4444;
-  --blue-dot: #3B82F6;
-  --purple-dot: #8B5CF6;
-  --amber: #D97706;
-}
-
-body {
-  background: var(--page-bg);
-  color: var(--text-body);
-  font-family: var(--font);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ══════════════════════════════
-   SIDEBAR — white, left panel
-══════════════════════════════ */
-.sidebar {
-  position: fixed;
-  top: 0; left: 0;
-  width: var(--sidebar-w);
-  height: 100vh;
-  background: var(--white);
-  border-right: 1px solid var(--card-border);
-  overflow-y: auto;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar::-webkit-scrollbar { width: 3px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--card-border); }
-
-.sidebar-logo {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid var(--card-border);
-}
-
-.logo-word {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--green-accent);
-  letter-spacing: -0.5px;
-  display: block;
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.sidebar-doc-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-dark);
-  display: block;
-  margin-bottom: 2px;
-}
-
-.sidebar-doc-sub {
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-.nav-section { padding: 12px 0 4px; }
-
-.nav-section-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  padding: 4px 20px 6px;
-}
-
-.nav-item {
-  display: block;
-  padding: 7px 20px;
-  text-decoration: none;
-  border-radius: 0;
-  transition: background 0.12s;
-  cursor: pointer;
-}
-
-.nav-item:hover { background: var(--green-pale); }
-
-.nav-item.active {
-  background: var(--green-light);
-  border-left: 3px solid var(--green-accent);
-  padding-left: 17px;
-}
-
-.nav-item-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.nav-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dot-green  { background: var(--green-accent); }
-.dot-red    { background: var(--red-dot); }
-.dot-blue   { background: var(--blue-dot); }
-.dot-purple { background: var(--purple-dot); }
-.dot-amber  { background: var(--amber); }
-.dot-teal   { background: #0891B2; }
-
-.nav-item-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-dark);
-  line-height: 1;
-}
-
-.nav-item.active .nav-item-title { color: var(--green-text); }
-
-.nav-item-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 1px;
-  padding-left: 14px;
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 14px 20px;
-  border-top: 1px solid var(--card-border);
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.8;
-}
-
-/* ══════════════════════════════
-   TOPBAR — dark green
-══════════════════════════════ */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-w);
-  right: 0;
-  height: var(--topbar-h);
-  background: var(--topbar-bg);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  gap: 0;
-}
-
-.topbar-brand {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--white);
-  letter-spacing: 0.5px;
-  margin-right: 36px;
-}
-
-.topbar-nav {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  height: 100%;
-}
-
-.topbar-nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-topbar-muted);
-  text-decoration: none;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color 0.12s, border-color 0.12s;
-}
-
-.topbar-nav-item:hover { color: var(--white); }
-
-.topbar-nav-item.active {
-  color: var(--white);
-  border-bottom-color: var(--green-bright);
-}
-
-.topbar-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.topbar-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.pill-green {
-  background: rgba(82,183,136,0.2);
-  color: #86EFAC;
-}
-
-.pill-red {
-  background: rgba(239,68,68,0.2);
-  color: #FCA5A5;
-}
-
-.pill-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-}
-
-.pdot-green { background: #86EFAC; }
-.pdot-red   { background: #FCA5A5; }
-
-/* Progress bar */
-.progress-wrap {
-  position: fixed;
-  top: var(--topbar-h);
-  left: var(--sidebar-w);
-  right: 0;
-  height: 2px;
-  background: rgba(255,255,255,0.1);
-  z-index: 99;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--green-bright);
-  width: 0%;
-  transition: width 0.15s;
-}
-
-/* ══════════════════════════════
-   MAIN LAYOUT
-══════════════════════════════ */
-.main {
-  margin-left: var(--sidebar-w);
-  padding-top: var(--topbar-h);
-  min-height: 100vh;
-}
-
-/* ══════════════════════════════
-   HERO SECTION
-══════════════════════════════ */
-.hero {
-  background: var(--hero-bg);
-  border-bottom: 1px solid var(--card-border);
-  padding: 52px 56px 48px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* dot grid bg like screenshot */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(64,145,108,0.18) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 14px;
-  border: 1px solid var(--card-border-strong);
-  border-radius: 20px;
-  background: rgba(255,255,255,0.7);
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-mid);
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-accent); }
-
-.hero-title {
-  font-size: 46px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -1px;
-  color: var(--text-dark);
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.hero-title-green { color: var(--green-accent); display: block; }
-
-.hero-desc {
-  font-size: 14.5px;
-  color: var(--text-mid);
-  max-width: 560px;
-  line-height: 1.65;
-  margin-bottom: 28px;
-  position: relative;
-}
-
-/* Pipeline strip */
-.pipeline-strip {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  flex-wrap: nowrap;
-  margin-bottom: 32px;
-  position: relative;
-  overflow-x: auto;
-}
-
-.pipe-step {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background: var(--white);
-  border: 1px solid var(--card-border-strong);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-body);
-  white-space: nowrap;
-}
-
-.pipe-step .pipe-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-accent); flex-shrink: 0; }
-.pipe-step.gate-step { border-color: #FCA5A5; }
-.pipe-step.gate-step .pipe-dot { background: var(--red-dot); }
-.pipe-step.gate2-step { border-color: #FCA5A5; }
-.pipe-step.gate2-step .pipe-dot { background: var(--red-dot); }
-.pipe-step.gis-step .pipe-dot { background: var(--blue-dot); }
-.pipe-step.boq-step .pipe-dot { background: var(--purple-dot); }
-.pipe-step.prop-step .pipe-dot { background: var(--purple-dot); }
-
-.pipe-arrow {
-  color: var(--text-muted);
-  font-size: 14px;
-  padding: 0 6px;
-  flex-shrink: 0;
-}
-
-/* KPI cards */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  position: relative;
-}
-
-.kpi-card {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: 0 1px 3px rgba(27,67,50,0.06);
-}
-
-.kpi-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.kpi-value {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-dark);
-  line-height: 1;
-  margin-bottom: 4px;
-  letter-spacing: -0.5px;
-}
-
-.kpi-sub {
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-/* ══════════════════════════════
-   PAGE SECTIONS
-══════════════════════════════ */
-.page-section {
-  padding: 48px 56px;
-  border-bottom: 1px solid var(--card-border);
-  background: var(--white);
-}
-
-.page-section:nth-child(even) { background: var(--page-bg); }
-
-.section-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.sec-num {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--green-accent);
-  font-weight: 500;
-  background: var(--green-light);
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.sec-tag {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-}
-
-.section-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-dark);
-  letter-spacing: -0.5px;
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.section-desc {
-  font-size: 14px;
-  color: var(--text-mid);
-  max-width: 680px;
-  line-height: 1.65;
-  margin-bottom: 28px;
-}
-
-/* ── Callouts ── */
-.callout {
-  padding: 14px 18px;
-  border-radius: var(--radius-sm);
-  border-left: 3px solid;
-  margin: 14px 0;
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-
-.callout-green {
-  background: var(--green-light);
-  border-color: var(--green-accent);
-  color: var(--text-body);
-}
-.callout-green strong { color: var(--green-text); }
-
-.callout-red {
-  background: #FEF2F2;
-  border-color: #EF4444;
-  color: #7F1D1D;
-}
-.callout-red strong { color: #DC2626; }
-
-.callout-blue {
-  background: #EFF6FF;
-  border-color: #3B82F6;
-  color: #1E3A5F;
-}
-.callout-blue strong { color: #1D4ED8; }
-
-.callout-amber {
-  background: #FFFBEB;
-  border-color: #D97706;
-  color: #78350F;
-}
-.callout-amber strong { color: #B45309; }
-
-/* ── Scope grid ── */
-.scope-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin: 20px 0;
-}
-
-.scope-box {
-  border-radius: var(--radius);
-  padding: 20px;
-  border: 1px solid;
-}
-
-.scope-in {
-  background: #F0FAF4;
-  border-color: var(--card-border-strong);
-}
-
-.scope-out {
-  background: #FEF2F2;
-  border-color: #FECACA;
-}
-
-.scope-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 12px;
-}
-
-.scope-in .scope-title { color: var(--green-accent); }
-.scope-out .scope-title { color: #DC2626; }
-
-.scope-list { list-style: none; }
-.scope-list li {
-  font-size: 13px;
-  color: var(--text-body);
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  line-height: 1.4;
-}
-.scope-list li:last-child { border-bottom: none; }
-.scope-list li::before { font-size: 11px; margin-top: 2px; flex-shrink: 0; }
-.scope-in li::before  { content: '✓'; color: var(--green-accent); }
-.scope-out li::before { content: '✕'; color: #DC2626; }
-
-/* ── KPI full grid ── */
-.kpi-full {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--card-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin: 20px 0;
-}
-
-.kpi-full-card {
-  background: var(--white);
-  padding: 20px;
-}
-
-.kfl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; }
-.kfb { font-size: 12px; color: #9CA3AF; text-decoration: line-through; margin-bottom: 4px; }
-.kfv { font-size: 26px; font-weight: 800; color: var(--green-accent); letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; font-family: var(--mono); }
-.kfp { font-size: 11px; color: var(--text-muted); }
-
-/* ── Workflow stages ── */
-.wf-stages {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 20px 0;
-}
-
-.wf-row {
-  display: grid;
-  grid-template-columns: 156px 1fr;
-  gap: 3px;
-}
-
-.wf-dept {
-  padding: 14px 16px;
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.3;
-  border: 1px solid;
-  border-right: none;
-}
-
-.wf-body {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 14px 18px;
-  font-size: 13px;
-  color: var(--text-body);
-  line-height: 1.6;
-}
-.wf-body strong { color: var(--text-dark); font-weight: 600; }
-
-.dept-sales  { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
-.dept-gate   { background: #FEF9C3; color: #92400E; border-color: #FDE68A; }
-.dept-design { background: #F5F3FF; color: #5B21B6; border-color: #DDD6FE; }
-.dept-scm    { background: #ECFEFF; color: #0E7490; border-color: #A5F3FC; }
-.dept-bd     { background: var(--green-light); color: var(--green-text); border-color: var(--card-border-strong); }
-
-/* ── Data table ── */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  margin: 16px 0;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-}
-
-.data-table thead tr { background: #F0FAF4; border-bottom: 1px solid var(--card-border-strong); }
-.data-table thead th {
-  text-align: left;
-  padding: 10px 14px;
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: var(--text-mid);
-  font-weight: 700;
-}
-
-.data-table tbody tr { border-bottom: 1px solid var(--card-border); transition: background 0.1s; }
-.data-table tbody tr:last-child { border-bottom: none; }
-.data-table tbody tr:hover { background: var(--green-pale); }
-.data-table tbody td { padding: 11px 14px; color: var(--text-body); vertical-align: top; line-height: 1.5; }
-.data-table tbody td:first-child { color: var(--text-dark); font-weight: 500; }
-
-.chip {
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--green-light);
-  border: 1px solid var(--card-border-strong);
-  border-radius: 4px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--green-text);
-}
-
-/* ── Use case rows ── */
-.uc-list { display: flex; flex-direction: column; gap: 3px; margin: 16px 0; }
-
-.uc-row {
-  display: grid;
-  grid-template-columns: 68px 1fr 110px 110px 48px;
-  gap: 12px;
-  align-items: start;
-  padding: 13px 16px;
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  transition: border-color 0.12s, box-shadow 0.12s;
-}
-
-.uc-row:hover { border-color: var(--green-bright); box-shadow: 0 2px 8px rgba(64,145,108,0.1); }
-
-.uc-id { font-family: var(--mono); font-size: 11px; color: var(--green-accent); padding-top: 2px; font-weight: 600; }
-.uc-title { color: var(--text-dark); font-weight: 600; line-height: 1.4; }
-.uc-title small { display: block; font-weight: 400; color: var(--text-mid); font-size: 12px; margin-top: 2px; }
-.uc-actor, .uc-out { font-size: 12px; color: var(--text-muted); padding-top: 3px; line-height: 1.4; }
-
-.badge-p1 {
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--green-light);
-  border: 1px solid var(--card-border-strong);
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--green-text);
-}
-
-.badge-p2 {
-  display: inline-block;
-  padding: 2px 8px;
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #1D4ED8;
-}
-
-/* ── FR rows ── */
-.fr-group-title {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin: 22px 0 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.fr-group-title::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
-
-.fr-list { display: flex; flex-direction: column; gap: 2px; }
-
-.fr-row {
-  display: grid;
-  grid-template-columns: 76px 1fr 50px;
-  gap: 12px;
-  align-items: center;
-  padding: 11px 14px;
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  transition: border-color 0.12s;
-}
-.fr-row:hover { border-color: var(--green-bright); }
-.fr-id { font-family: var(--mono); font-size: 11px; color: var(--green-accent); font-weight: 600; }
-.fr-desc { color: var(--text-body); line-height: 1.5; }
-
-/* ── RBAC ── */
-.rbac-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin: 20px 0;
-}
-
-.rbac-card {
-  border-radius: var(--radius);
-  padding: 18px;
-  border: 1px solid var(--card-border);
-  background: var(--white);
-}
-
-.rbac-role { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.rbac-who { font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); }
-.rbac-perms { font-size: 12.5px; color: var(--text-body); line-height: 1.65; }
-
-.rbac-viewer .rbac-role { color: var(--text-muted); }
-.rbac-editor .rbac-role { color: #1D4ED8; }
-.rbac-editor { border-color: #BFDBFE; }
-.rbac-manager .rbac-role { color: var(--green-accent); }
-.rbac-manager { border-color: var(--card-border-strong); }
-.rbac-sponsor .rbac-role { color: #5B21B6; }
-.rbac-sponsor { border-color: #DDD6FE; }
-
-/* ── NFR pills ── */
-.nfr-pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-.nfr-perf  { background: #EFF6FF; color: #1D4ED8; }
-.nfr-acc   { background: #F5F3FF; color: #5B21B6; }
-.nfr-avail { background: var(--green-light); color: var(--green-text); }
-.nfr-sec   { background: #FEF2F2; color: #DC2626; }
-.nfr-scale { background: #ECFEFF; color: #0E7490; }
-.nfr-infra { background: #FFFBEB; color: #92400E; }
-.nfr-integ { background: #FFF7ED; color: #C2410C; }
-.nfr-audit { background: #F9FAFB; color: #6B7280; }
-
-/* ── Risk cards ── */
-.risk-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
-
-.risk-card {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  display: grid;
-  grid-template-columns: 52px 1fr auto;
-  gap: 14px;
-  align-items: start;
-  transition: box-shadow 0.12s;
-}
-.risk-card:hover { box-shadow: 0 2px 10px rgba(27,67,50,0.08); }
-
-.risk-id { font-family: var(--mono); font-size: 11px; color: var(--text-muted); padding-top: 2px; }
-.risk-desc { font-size: 13px; color: var(--text-body); line-height: 1.6; }
-.risk-desc strong { display: block; color: var(--text-dark); font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
-.risk-mit { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.55; padding-top: 8px; border-top: 1px solid var(--card-border); }
-.risk-mit strong { color: var(--text-body); }
-
-.rlevel {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.rl-critical { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; }
-.rl-high     { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
-.rl-medium   { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; }
-.rl-low      { background: var(--green-light); border: 1px solid var(--card-border-strong); color: var(--green-text); }
-
-/* ── Phase summary ── */
-.phase-summary {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.psc {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 16px;
-  border-top: 3px solid;
-}
-.psc-p1 { border-top-color: var(--green-accent); }
-.psc-p2 { border-top-color: #3B82F6; }
-.psc-p3 { border-top-color: #8B5CF6; }
-.psc-p4 { border-top-color: #D97706; }
-.psc-p5 { border-top-color: #0891B2; }
-
-.psc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-.psc-p1 .psc-label { color: var(--green-accent); }
-.psc-p2 .psc-label { color: #3B82F6; }
-.psc-p3 .psc-label { color: #8B5CF6; }
-.psc-p4 .psc-label { color: #D97706; }
-.psc-p5 .psc-label { color: #0891B2; }
-
-.psc-name  { font-size: 12px; font-weight: 600; color: var(--text-dark); line-height: 1.35; margin-bottom: 8px; }
-.psc-weeks { font-size: 11px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 8px; }
-.psc-num   { font-size: 30px; font-weight: 800; font-family: var(--mono); line-height: 1; }
-.psc-p1 .psc-num { color: var(--green-accent); }
-.psc-p2 .psc-num { color: #3B82F6; }
-.psc-p3 .psc-num { color: #8B5CF6; }
-.psc-p4 .psc-num { color: #D97706; }
-.psc-p5 .psc-num { color: #0891B2; }
-.psc-nlabel { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-
-/* ── Phase header ── */
-.phase-hdr {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 24px 0 8px;
-}
-
-.phase-badge {
-  padding: 3px 12px;
-  border-radius: 20px;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.pb-p1 { background: var(--green-light); color: var(--green-text); border: 1px solid var(--card-border-strong); }
-.pb-p2 { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
-.pb-p3 { background: #F5F3FF; color: #5B21B6; border: 1px solid #DDD6FE; }
-.pb-p4 { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
-.pb-p5 { background: #ECFEFF; color: #0E7490; border: 1px solid #A5F3FC; }
-
-.phase-hdr-title { font-size: 13px; font-weight: 600; color: var(--text-body); }
-.phase-hdr-weeks { margin-left: auto; font-size: 11.5px; color: var(--text-muted); font-family: var(--mono); }
-
-/* ── Milestone rows ── */
-.ms-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 2px; }
-
-.ms-row {
-  display: grid;
-  grid-template-columns: 56px 180px 115px 1fr auto;
-  gap: 12px;
-  align-items: start;
-  padding: 12px 16px;
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  transition: border-color 0.12s, box-shadow 0.12s;
-}
-.ms-row:hover { border-color: var(--green-bright); box-shadow: 0 1px 6px rgba(64,145,108,0.08); }
-.ms-row.ms-active { border-color: var(--green-accent); background: var(--green-pale); }
-
-.ms-id    { font-family: var(--mono); font-size: 11px; color: var(--green-accent); font-weight: 600; padding-top: 1px; }
-.ms-name  { color: var(--text-dark); font-weight: 600; line-height: 1.4; }
-.ms-time  { font-size: 11.5px; color: var(--text-muted); padding-top: 2px; }
-.ms-del   { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-
-.active-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  background: var(--green-light);
-  border: 1px solid var(--card-border-strong);
-  border-radius: 20px;
-  font-size: 10px;
-  color: var(--green-text);
-  font-weight: 700;
-  white-space: nowrap;
-}
-.active-pill::before {
-  content: '';
-  width: 5px; height: 5px;
-  background: var(--green-accent);
-  border-radius: 50%;
-  animation: blink 1.4s infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-/* ── Step flow ── */
-.step-flow {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  margin: 20px 0;
-}
-.step-block {
-  flex: 1;
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-}
-.step-num   { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green-accent); margin-bottom: 6px; font-family: var(--mono); }
-.step-title { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
-.step-desc  { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-.step-arrow { display: flex; align-items: center; padding: 0 8px; color: var(--text-muted); font-size: 16px; flex-shrink: 0; }
-
-/* ── Proposal sections ── */
-.proposal-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  margin: 16px 0;
-}
-.ps-item {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: grid;
-  grid-template-columns: 76px 1fr;
-  gap: 10px;
-  align-items: start;
-}
-.ps-num    { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); padding-top: 2px; }
-.ps-name   { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
-.ps-source { font-size: 11.5px; color: var(--text-muted); }
-
-/* ── Glossary ── */
-.gloss-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  margin: 16px 0;
-}
-.gloss-item {
-  background: var(--white);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-}
-.gloss-term { font-family: var(--mono); font-size: 12px; color: var(--green-accent); font-weight: 600; margin-bottom: 3px; }
-.gloss-def  { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
-
-/* ── Approval table ── */
-.appr-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  margin: 14px 0;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-}
-.appr-table thead tr { background: #F0FAF4; border-bottom: 1px solid var(--card-border-strong); }
-.appr-table thead th { text-align: left; padding: 10px 14px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-mid); font-weight: 700; }
-.appr-table tbody tr { border-bottom: 1px solid var(--card-border); }
-.appr-table tbody tr:last-child { border-bottom: none; }
-.appr-table tbody tr:hover { background: var(--green-pale); }
-.appr-table tbody td { padding: 11px 14px; color: var(--text-body); }
-.appr-table tbody td:first-child { color: var(--text-dark); font-weight: 500; }
-
-.sig-line { display: inline-block; width: 80px; height: 1px; background: #D1D5DB; vertical-align: middle; }
-
-.divider { height: 1px; background: var(--card-border); margin: 24px 0; }
-
-/* ── Tech stack ── */
-.tech-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
-.tech-chip-sm {
-  padding: 4px 12px;
-  background: var(--white);
-  border: 1px solid var(--card-border-strong);
-  border-radius: 20px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--text-mid);
-}
-
-/* scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+  :root {
+    --green:#3dba4e;--dark-green:#2a8a38;--light-green:#e8f7ea;
+    --blue:#1a6bbf;--gray:#f4f6f8;--border:#dde3ea;
+    --text:#1c2b36;--muted:#6b7a8a;--white:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#f0f4f7;color:var(--text);min-height:100vh}
+  .header{background:var(--white);border-bottom:3px solid var(--green);padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
+  .logo span:first-child{color:var(--dark-green)}
+  .logo span:last-child{color:var(--green)}
+  .header-sub{color:var(--muted);font-size:12px;margin-left:8px;border-left:2px solid var(--border);padding-left:12px}
+  .container{max-width:920px;margin:28px auto;padding:0 14px}
+  .card{background:var(--white);border-radius:10px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden}
+  .card-header{background:var(--green);color:white;padding:11px 18px;display:flex;align-items:center;gap:9px}
+  .card-header h3{font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .step-badge{background:rgba(255,255,255,.25);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .card-body{padding:18px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid.three{grid-template-columns:1fr 1fr 1fr}
+  .form-group{display:flex;flex-direction:column;gap:4px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  input,select,textarea{border:1.5px solid var(--border);border-radius:6px;padding:8px 11px;font-size:13px;font-family:Arial,sans-serif;transition:border-color .2s;outline:none;width:100%}
+  input:focus,select:focus,textarea:focus{border-color:var(--green)}
+  .ai-field{background:var(--light-green)!important;color:var(--dark-green)!important;font-weight:700!important;border-color:#b2ddb8!important;cursor:default}
+  .bill-table{width:100%;border-collapse:collapse;font-size:13px}
+  .bill-table th{background:var(--gray);padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+  .bill-table td{padding:5px 8px;border-bottom:1px solid var(--border)}
+  .bill-table input{border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:13px}
+  .calc-bar{display:flex;align-items:center;gap:10px;background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:10px 14px;margin:14px 0 4px}
+  .calc-bar span{font-size:12px;color:#7a5c00;flex:1}
+  .btn-calc{background:var(--dark-green);color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .btn-calc:hover{background:#1f6a2a}
+  .calc-flash{animation:flashGreen .6s ease}
+  @keyframes flashGreen{0%,100%{background:var(--light-green)}50%{background:#b6f2c0}}
+  .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  .summary-box{background:var(--light-green);border:1px solid #b2ddb8;border-radius:8px;padding:11px;text-align:center}
+  .summary-box .val{font-size:18px;font-weight:800;color:var(--dark-green)}
+  .summary-box .lbl{font-size:10px;color:var(--muted);margin-top:2px}
+  .btn-generate{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;margin-top:6px}
+  .btn-generate:hover{background:var(--dark-green)}
+  .btn-generate:disabled{background:#aaa;cursor:not-allowed}
+  .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #output-section{display:none;margin-top:4px}
+  .proposal-wrap{background:var(--white);border-radius:10px;border:2px solid var(--green);padding:30px;font-size:13.5px;line-height:1.75}
+  .proposal-wrap h1{color:var(--dark-green);font-size:20px;border-bottom:2px solid var(--green);padding-bottom:10px;margin-bottom:18px;text-align:center}
+  .proposal-wrap h2{color:var(--dark-green);font-size:13px;font-weight:700;background:var(--light-green);padding:7px 12px;border-left:4px solid var(--green);border-radius:0 6px 6px 0;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.5px}
+  .proposal-wrap table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  .proposal-wrap th{background:var(--green);color:white;padding:8px 11px;text-align:left}
+  .proposal-wrap td{padding:7px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+  .proposal-wrap tr:nth-child(even) td{background:var(--gray)}
+  .proposal-wrap p{margin:7px 0}
+  .proposal-wrap ul,.proposal-wrap ol{padding-left:18px;margin:7px 0}
+  .proposal-wrap li{margin:3px 0}
+  .highlight-box{background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:14px 18px;margin:14px 0}
+  .proposal-footer{margin-top:24px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap}
+  .btn-action{background:var(--blue);color:white;border:none;border-radius:7px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer}
+  .btn-action:hover{background:#145499}
+  .btn-action.green{background:var(--dark-green)}
+  .btn-action.green:hover{background:#1f6a2a}
+  @media(max-width:600px){.form-grid,.form-grid.three,.summary-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<!-- ══════════════════════ SIDEBAR ══════════════════════ -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <span class="logo-word">SORIGIN</span>
-    <span class="sidebar-doc-title">EPC Automated Proposal</span>
-    <span class="sidebar-doc-sub">Business Requirements Document · v1.0</span>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-label">Platform</div>
-    <a class="nav-item active" href="#intro">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Introduction</span></div>
-      <div class="nav-item-sub">Lead-to-Proposal Overview</div>
-    </a>
-    <a class="nav-item" href="#workflow">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Master Workflow</span></div>
-      <div class="nav-item-sub">End-to-End Connected Flow</div>
-    </a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-label">Departments</div>
-    <a class="nav-item" href="#sales">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Sales</span></div>
-      <div class="nav-item-sub">Lead &amp; Capacity</div>
-    </a>
-    <a class="nav-item" href="#gate1">
-      <div class="nav-item-row"><span class="nav-dot dot-red"></span><span class="nav-item-title">Execution Team</span></div>
-      <div class="nav-item-sub">Gate 1 Confirmation</div>
-    </a>
-    <a class="nav-item" href="#design">
-      <div class="nav-item-row"><span class="nav-dot dot-blue"></span><span class="nav-item-title">Design &amp; Engineering</span></div>
-      <div class="nav-item-sub">GIS, Layout &amp; Drawings</div>
-    </a>
-    <a class="nav-item" href="#gate2">
-      <div class="nav-item-row"><span class="nav-dot dot-red"></span><span class="nav-item-title">Execution Team</span></div>
-      <div class="nav-item-sub">Gate 2 Confirmation</div>
-    </a>
-    <a class="nav-item" href="#scm">
-      <div class="nav-item-row"><span class="nav-dot dot-teal"></span><span class="nav-item-title">SCM</span></div>
-      <div class="nav-item-sub">BOQ &amp; Pricing</div>
-    </a>
-    <a class="nav-item" href="#bd">
-      <div class="nav-item-row"><span class="nav-dot dot-purple"></span><span class="nav-item-title">BD Team</span></div>
-      <div class="nav-item-sub">Proposal Generation</div>
-    </a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-label">Platform</div>
-    <a class="nav-item" href="#requirements">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Requirements</span></div>
-      <div class="nav-item-sub">Functional Requirements</div>
-    </a>
-    <a class="nav-item" href="#nfr">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Non-Functional Req.</span></div>
-      <div class="nav-item-sub">Performance, Security, Audit</div>
-    </a>
-    <a class="nav-item" href="#rbac">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">RBAC</span></div>
-      <div class="nav-item-sub">Role-Based Access Control</div>
-    </a>
-    <a class="nav-item" href="#roadmap">
-      <div class="nav-item-row"><span class="nav-dot dot-amber"></span><span class="nav-item-title">Roadmap &amp; Risks</span></div>
-      <div class="nav-item-sub">Phases &amp; Risk Register</div>
-    </a>
-    <a class="nav-item" href="#glossary">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Glossary</span></div>
-      <div class="nav-item-sub">Term Definitions</div>
-    </a>
-    <a class="nav-item" href="#doc-control">
-      <div class="nav-item-row"><span class="nav-dot dot-green"></span><span class="nav-item-title">Document Control</span></div>
-      <div class="nav-item-sub">Approvals &amp; Distribution</div>
-    </a>
-  </div>
-
-  <div class="sidebar-footer">
-    SRESPL / BRD / 25 / 001<br>
-    Prepared by Sorigin Digital<br>
-    Status: Draft for CEO Review<br>
-    Scope: Maharashtra · Solar &amp; BESS
-  </div>
-</nav>
-
-<!-- ══════════════════════ TOPBAR ══════════════════════ -->
-<div class="topbar">
-  <span class="topbar-brand">SORIGIN</span>
-  <nav class="topbar-nav">
-    <a class="topbar-nav-item active" href="#intro">Overview</a>
-    <a class="topbar-nav-item" href="#workflow">Master Workflow</a>
-    <a class="topbar-nav-item" href="#requirements">Requirements</a>
-    <a class="topbar-nav-item" href="#roadmap">Roadmap</a>
-  </nav>
-  <div class="topbar-right">
-    <div class="topbar-pill pill-green"><span class="pill-dot pdot-green"></span> NetSuite connected</div>
-    <div class="topbar-pill pill-red"><span class="pill-dot pdot-red"></span> ODA pending</div>
-  </div>
+<div class="header">
+  <div class="logo"><span>SOR</span><span>IGIN</span></div>
+  <div class="header-sub">AI Solar Proposal Generator &middot; EPC Techno-Commercial &middot; SRESPL</div>
 </div>
+<div class="container">
 
-<div class="progress-wrap">
-  <div class="progress-fill" id="progressFill"></div>
-</div>
-
-<!-- ══════════════════════ MAIN ══════════════════════ -->
-<main class="main">
-
-<!-- HERO -->
-<div class="hero" id="intro">
-  <div class="hero-badge">
-    <span class="hero-badge-dot"></span>
-    BRD V1.0 · SOLAR &amp; BESS · EPC · JULY 2025
-  </div>
-  <div class="hero-title">
-    EPC Automated
-    <span class="hero-title-green">Proposal</span>
-  </div>
-  <div class="hero-desc">AI-powered lead-to-first-proposal workflow for Solar &amp; BESS EPC projects</div>
-
-  <div class="pipeline-strip">
-    <div class="pipe-step"><span class="pipe-dot"></span> Lead</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step"><span class="pipe-dot"></span> Capacity Sizing</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step gate-step"><span class="pipe-dot"></span> Exec. Gate 1</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step gis-step"><span class="pipe-dot" style="background:#3B82F6"></span> GIS + Design</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step gate2-step"><span class="pipe-dot"></span> Exec. Gate 2</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step boq-step"><span class="pipe-dot" style="background:#8B5CF6"></span> BOQ + SCM</div>
-    <span class="pipe-arrow">→</span>
-    <div class="pipe-step prop-step"><span class="pipe-dot" style="background:#8B5CF6"></span> Proposal → Client</div>
-  </div>
-
-  <div class="kpi-row">
-    <div class="kpi-card">
-      <div class="kpi-label">Proposal Time</div>
-      <div class="kpi-value">&lt;4 hrs</div>
-      <div class="kpi-sub">↓ from 3–10 days</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Design Gen.</div>
-      <div class="kpi-value">&lt;1 hr</div>
-      <div class="kpi-sub">↓ from 3–5 days</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Capacity Calc</div>
-      <div class="kpi-value">Auto</div>
-      <div class="kpi-sub">No specialist needed</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">BOQ Pricing</div>
-      <div class="kpi-value">Live KB</div>
-      <div class="kpi-sub">SCM auto-queried</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Proposal Format</div>
-      <div class="kpi-value">SRESPL</div>
-      <div class="kpi-sub">Auto-generated PDF</div>
+<!-- STEP 1 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">1</div><h3>Client &amp; Proposal Details</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Client / Owner Name</label><input type="text" id="clientName" placeholder="e.g. Thermax Limited"/></div>
+      <div class="form-group"><label>Contact Name</label><input type="text" id="contactName" placeholder="e.g. Mr. Rajesh Kumar"/></div>
+      <div class="form-group"><label>Proposal Number</label><input type="text" id="proposalNo" placeholder="SRESPL / 26 / S / MH / 001"/></div>
+      <div class="form-group"><label>Proposal Date</label><input type="text" id="proposalDate" value="07 April 2026"/></div>
+      <div class="form-group"><label>Validity Date</label><input type="text" id="validityDate" value="14 April 2026"/></div>
+      <div class="form-group"><label>Prepared By</label><input type="text" id="preparedBy" placeholder="Your Name"/></div>
     </div>
   </div>
 </div>
 
-<!-- § 1 EXECUTIVE SUMMARY -->
-<div class="page-section" id="exec-summary">
-  <div class="section-eyebrow"><span class="sec-num">§ 1</span><span class="sec-tag">Overview</span></div>
-  <div class="section-title">Executive Summary</div>
-  <div class="section-desc">This BRD defines the functional and operational requirements for the Sorigin EPC Automated Proposal platform — an AI-augmented system connecting the complete commercial workflow from lead capture to client-ready techno-commercial proposal.</div>
-
-  <div class="callout callout-green">
-    <strong>Business Objective:</strong> Enable any Sales Account Manager to generate a complete, accurate SRESPL-format Solar EPC proposal — including site details, GIS layout, project configuration, commercial terms, and OMS pricing — in <strong>under four hours</strong>, without requiring specialist intervention for standard project types.
-  </div>
-
-  <div class="divider"></div>
-
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin-bottom:14px;">Scope</div>
-  <div class="scope-grid">
-    <div class="scope-box scope-in">
-      <div class="scope-title">✓ In Scope</div>
-      <ul class="scope-list">
-        <li>Solar EPC (ground mount &amp; rooftop)</li>
-        <li>BESS (standard sizing ranges)</li>
-        <li>Maharashtra locations (Solapur, Karmala, Vairagam)</li>
-        <li>AI SLD Generator integration (Bedrock + ODA)</li>
-        <li>NetSuite proposal record creation</li>
-        <li>SRESPL proposal format (PDF output)</li>
-      </ul>
-    </div>
-    <div class="scope-box scope-out">
-      <div class="scope-title">✕ Out of Scope</div>
-      <ul class="scope-list">
-        <li>Wind turbine projects (pending clarity)</li>
-        <li>Complex / non-standard BESS (specialist-handled)</li>
-        <li>International projects</li>
-        <li>AMS / OMS live monitoring (separate system)</li>
-        <li>NetSuite financial accounting</li>
-        <li>Client e-signature workflow</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin-bottom:14px;">Key Performance Indicators</div>
-  <div class="kpi-full">
-    <div class="kpi-full-card"><div class="kfl">Lead to Proposal Sent</div><div class="kfb">3–10 days today</div><div class="kfv">&lt;4 HRS</div><div class="kfp">Phase 1 target</div></div>
-    <div class="kpi-full-card"><div class="kfl">Design Generation</div><div class="kfb">2–3 days CAD</div><div class="kfv">&lt;4 HRS</div><div class="kfp">AI-assisted · Phase 1</div></div>
-    <div class="kpi-full-card"><div class="kfl">BOQ Pricing</div><div class="kfb">3–5 days manual SCM</div><div class="kfv">INSTANT</div><div class="kfp">From pricing KB</div></div>
-    <div class="kpi-full-card"><div class="kfl">Capacity Calculation</div><div class="kfb">Requires 2–3 specialists</div><div class="kfv">SELF-SERVE</div><div class="kfp">Any AM · Phase 1</div></div>
-    <div class="kpi-full-card"><div class="kfl">Proposal Assembly</div><div class="kfb">1–2 days manual Word</div><div class="kfv">AUTO</div><div class="kfp">AI auto-populated</div></div>
-    <div class="kpi-full-card"><div class="kfl">Proposal Tracking</div><div class="kfb">No system</div><div class="kfv">ALERTS</div><div class="kfp">Automated · Phase 2</div></div>
-  </div>
-</div>
-
-<!-- § 2 MASTER WORKFLOW -->
-<div class="page-section" id="workflow">
-  <div class="section-eyebrow"><span class="sec-num">§ 2</span><span class="sec-tag">Master Workflow</span></div>
-  <div class="section-title">Master Workflow — Lead to First Proposal</div>
-  <div class="section-desc">Every department connected in a single automated pipeline. Humans approve at gates; AI handles generation. Each row is one department's contribution. Orange gates = mandatory human confirmation before next department begins.</div>
-
-  <div class="wf-stages">
-    <div class="wf-row">
-      <div class="wf-dept dept-sales">Stage 1<br>Sales Team</div>
-      <div class="wf-body"><strong>Lead Captured → Capacity Sized</strong> — Lead logged from Apollo/LinkedIn or inbound. Bills uploaded; AI extracts kWh, kVA, tariff. Existing renewables deducted. DC/AC MWp, DC:AC ratio, CAPEX/OPEX comparison computed. Location intelligence auto-fetches GHI, nearest substation, voltage, aerial distance.</div>
-    </div>
-    <div class="wf-row">
-      <div class="wf-dept dept-gate">Gate 1<br>Execution</div>
-      <div class="wf-body"><strong>Capacity &amp; Site Confirmation</strong> — Execution reviews capacity brief and land feasibility. Land area, access road, grid proximity confirmed. Green light: confirmed brief auto-sent to Design team; NetSuite updated to <em>Design In Progress</em>.</div>
-    </div>
-    <div class="wf-row">
-      <div class="wf-dept dept-design">Stage 2<br>Design &amp; Eng.</div>
-      <div class="wf-body"><strong>GIS → SLD → Electrical Design</strong> — Satellite image fetched; plot boundary traced; panel rows placed with shading analysis. String config, ACJB, inverter positions, HT yard, evacuation route generated. Engineer reviews → AI revises (max 3 cycles) → senior stamps → DWG/PDF exported via ODA.</div>
-    </div>
-    <div class="wf-row">
-      <div class="wf-dept dept-gate">Gate 2<br>Execution</div>
-      <div class="wf-body"><strong>Design Confirmation</strong> — Execution reviews panel layout, evacuation route, civil scope, sub-project split. On approval: design package auto-released to SCM; NetSuite status → <em>BOQ Pricing In Progress</em>.</div>
-    </div>
-    <div class="wf-row">
-      <div class="wf-dept dept-scm">Stage 3<br>SCM</div>
-      <div class="wf-body"><strong>BOQ Extraction &amp; Pricing</strong> — AI generates BOQ from design data. Thumb-rule ₹/MWp × capacity = EPC cost. OMS terms auto-structured: ₹5L/MWp/year, 5% escalation, quarterly advance. Cost-loaded BOQ released to BD.</div>
-    </div>
-    <div class="wf-row">
-      <div class="wf-dept dept-bd">Stage 4<br>BD Team</div>
-      <div class="wf-body"><strong>Proposal Assembly &amp; Dispatch</strong> — All 10 SRESPL sections auto-populated from NetSuite. BD reviews &amp; edits. Manager approves (historical comps surfaced, AI ₹/MWp recommendation). Sorigin-branded PDF generated. Proposal No. SRESPL/YY/S/[State]/[Seq] assigned. Sent to client.</div>
+<!-- STEP 2 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">2</div><h3>Site Details</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Village / Taluka</label><input type="text" id="village" value="Ratanjan / Ladole"/></div>
+      <div class="form-group"><label>District</label><input type="text" id="district" value="Solapur"/></div>
+      <div class="form-group"><label>State</label><input type="text" id="state" value="Maharashtra"/></div>
+      <div class="form-group"><label>GPS Coordinates</label><input type="text" id="coords" value="18°3'52.83&quot;N, 75°46'49.01&quot;E"/></div>
+      <div class="form-group"><label>Total Area (Acres)</label><input type="text" id="area" value="~250 Acres"/></div>
+      <div class="form-group"><label>Land Type</label><input type="text" id="landType" value="Private"/></div>
+      <div class="form-group"><label>Land Profile</label><input type="text" id="landProfile" value="Flat"/></div>
+      <div class="form-group"><label>Land Model</label>
+        <select id="landModel"><option>Outright Sale</option><option>Lease</option><option>License</option></select>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- § 3 ARCHITECTURE -->
-<div class="page-section" id="architecture">
-  <div class="section-eyebrow"><span class="sec-num">§ 3</span><span class="sec-tag">System Architecture</span></div>
-  <div class="section-title">System Architecture</div>
-  <div class="section-desc">Deployed on AWS, three-tier web architecture. AI API calls are server-side only — the Bedrock API key is never exposed to the browser.</div>
-
-  <div class="tech-row">
-    <span class="tech-chip-sm">React 18 + Vite</span><span class="tech-chip-sm">Node.js 20 LTS</span><span class="tech-chip-sm">Express 4</span>
-    <span class="tech-chip-sm">MongoDB Atlas M10+</span><span class="tech-chip-sm">Amazon S3 (ap-south-1)</span>
-    <span class="tech-chip-sm">AWS Bedrock — Nova Pro v1.0</span><span class="tech-chip-sm">AWS EC2 t3.medium</span>
-    <span class="tech-chip-sm">ODA Platform (DWG)</span><span class="tech-chip-sm">JWT Auth</span>
-  </div>
-
-  <table class="data-table">
-    <thead><tr><th>Component</th><th>Technology</th><th>Role</th><th>Data in Transit</th></tr></thead>
-    <tbody>
-      <tr><td>User Browser</td><td><span class="chip">React SPA</span></td><td>Renders UI; sends HTTPS requests to EC2 API</td><td>TLS 1.3 encrypted</td></tr>
-      <tr><td>App on EC2</td><td><span class="chip">Node.js / Express</span></td><td>JWT auth, route handlers, file upload, S3 operations, Bedrock orchestration</td><td>VPC private subnet</td></tr>
-      <tr><td>MongoDB</td><td><span class="chip">Atlas M10+</span></td><td>Proposal metadata, job records, user sessions, pricing KB, proposal registry</td><td>AES-256 at rest</td></tr>
-      <tr><td>Amazon S3</td><td><span class="chip">ap-south-1</span></td><td>Uploaded bills, GIS images, generated PDFs / DWG / XLSX</td><td>SSE-S3 encryption</td></tr>
-      <tr><td>AI SaaS API</td><td><span class="chip">Bedrock Nova Pro</span></td><td>SLD generation, capacity calculation, lead scoring, proposal assembly</td><td>HTTPS + API key (server-held only)</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-blue">
-    <strong>Async Job Pattern:</strong> Browser receives a <code style="font-family:var(--mono);font-size:11px;background:#DBEAFE;padding:1px 5px;border-radius:3px;">jobId</code> immediately and polls every 3 seconds until <code style="font-family:var(--mono);font-size:11px;background:#DBEAFE;padding:1px 5px;border-radius:3px;">status=complete</code>. Phase 2 replaces polling with WebSocket push.
-  </div>
-</div>
-
-<!-- § 4 SALES -->
-<div class="page-section" id="sales">
-  <div class="section-eyebrow"><span class="sec-num">§ 4</span><span class="sec-tag">Department 01</span></div>
-  <div class="section-title">Sales — Lead &amp; Capacity</div>
-  <div class="section-desc">First point of contact. Captures leads, collects electricity bills and site data, performs AI-assisted capacity sizing for Solar &amp; BESS, and confirms requirements before passing to the execution team.</div>
-
-  <div class="callout callout-amber">
-    <strong>Current problem:</strong> Only 2–3 people can size solar capacity from bills. 70% of AM time wasted on unqualified leads. No structured intake form. Pricing approvals are verbal — adding 1–2 day delays on live proposals.
-  </div>
-
-  <div class="uc-list">
-    <div class="uc-row">
-      <div class="uc-id">UC-S1</div>
-      <div class="uc-title">AI Lead Scoring &amp; Qualification<small>Import Apollo/LinkedIn CSV; AI scores intent 0–100; filter price collectors; recommend outreach sequence</small></div>
-      <div class="uc-actor">Account Manager</div><div class="uc-out">Ranked lead list</div><div><span class="badge-p1">P1</span></div>
+<!-- STEP 3 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">3</div><h3>Electricity Bills &amp; Capacity Sizing</h3></div>
+  <div class="card-body">
+    <table class="bill-table">
+      <thead><tr><th>Month</th><th>Units (kWh)</th><th>Tariff (&#8377;/kWh)</th><th>Total Bill (&#8377;)</th></tr></thead>
+      <tbody id="billTableBody"></tbody>
+    </table>
+    <div class="calc-bar">
+      <span>&#9889; Edit any bill value above, then click <strong>Recalculate</strong> to update DC/AC capacity instantly.</span>
+      <button class="btn-calc" onclick="calcSizing(true)">&#x1F504; Recalculate</button>
     </div>
-    <div class="uc-row">
-      <div class="uc-id">UC-S2</div>
-      <div class="uc-title">Bill Extraction → Solar Capacity<small>Upload MSEDCL/DISCOM PDF; AI extracts kWh, kVA, tariff; computes DC MWp, AC MW, DC:AC ratio, GHI-adjusted generation, CAPEX/OPEX</small></div>
-      <div class="uc-actor">Account Manager</div><div class="uc-out">Capacity report + financial model</div><div><span class="badge-p1">P1</span></div>
+    <div class="summary-row">
+      <div class="summary-box"><div class="val" id="sum-annual">&#8212;</div><div class="lbl">Annual kWh</div></div>
+      <div class="summary-box"><div class="val" id="sum-tariff">&#8212;</div><div class="lbl">Avg &#8377;/kWh</div></div>
+      <div class="summary-box"><div class="val" id="sum-dc">&#8212;</div><div class="lbl">Rec. DC MWp</div></div>
+      <div class="summary-box"><div class="val" id="sum-bill">&#8212;</div><div class="lbl">Annual Bill (&#8377; L)</div></div>
     </div>
-    <div class="uc-row">
-      <div class="uc-id">UC-S3</div>
-      <div class="uc-title">BESS Sizing with Auto-Escalation<small>Standard-range sizing; auto-escalate non-standard to specialist with pre-filled brief</small></div>
-      <div class="uc-actor">AM / Specialist</div><div class="uc-out">BESS sizing sheet + risk flags</div><div><span class="badge-p2">P2</span></div>
-    </div>
-    <div class="uc-row">
-      <div class="uc-id">UC-S4</div>
-      <div class="uc-title">Location &amp; Site Intelligence<small>GPS → GHI, nearest substation, voltage level, aerial distance auto-fetched</small></div>
-      <div class="uc-actor">Account Manager</div><div class="uc-out">Site data card → NetSuite</div><div><span class="badge-p1">P1</span></div>
-    </div>
-    <div class="uc-row">
-      <div class="uc-id">UC-S5</div>
-      <div class="uc-title">Existing Renewable Asset Deduction<small>Intake form captures existing solar/BESS; AI deducts from gross requirement</small></div>
-      <div class="uc-actor">Account Manager</div><div class="uc-out">Net DC capacity requirement</div><div><span class="badge-p1">P1</span></div>
+    <div style="margin-top:18px">
+      <div class="form-grid three">
+        <div class="form-group"><label>DC Capacity (MWp) &#10022; AI</label><input type="text" id="dcMwp" class="ai-field" readonly/></div>
+        <div class="form-group"><label>AC Capacity (MW) &#10022; AI</label><input type="text" id="acMw" class="ai-field" readonly/></div>
+        <div class="form-group"><label>Annual Generation &#10022; AI</label><input type="text" id="annualGen" class="ai-field" readonly/></div>
+        <div class="form-group"><label>Tariff Category</label><input type="text" id="tariffCat" value="Industrial HT"/></div>
+        <div class="form-group"><label>DISCOM / Utility</label><input type="text" id="discom" value="MSEDCL"/></div>
+        <div class="form-group"><label>Business Model</label>
+          <select id="bizModel"><option>EPC (Turnkey)</option><option>OPEX / PPA</option><option>CAPEX + OMS</option></select>
+        </div>
+        <div class="form-group"><label>Module Technology</label>
+          <select id="modTech"><option>TopCon Mono</option><option>Mono PERC</option><option>Bifacial TopCon</option></select>
+        </div>
+        <div class="form-group"><label>Inverter Type</label>
+          <select id="invType"><option>String Inverter</option><option>Central Inverter</option><option>Micro Inverter</option></select>
+        </div>
+        <div class="form-group"><label>BESS Required?</label>
+          <select id="bessReq"><option>No</option><option>Yes</option></select>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- § 5 GATE 1 -->
-<div class="page-section" id="gate1">
-  <div class="section-eyebrow"><span class="sec-num">§ 5</span><span class="sec-tag">Gate</span></div>
-  <div class="section-title">Execution Gate 1 — Capacity &amp; Site Confirmation</div>
-  <div class="section-desc">Mandatory checkpoint before any design work begins. Execution team reviews the capacity brief and confirms site feasibility.</div>
-
-  <table class="data-table">
-    <thead><tr><th>Check Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Capacity appropriateness</td><td>Is the MWp achievable on available land? Does DC:AC ratio match site conditions?</td></tr>
-      <tr><td>Land profile confirmation</td><td>Site flat/polygon? Access road available? Distance from main road manageable for construction logistics?</td></tr>
-      <tr><td>Grid connectivity feasibility</td><td>Is substation connectivity achievable within cost assumptions? ROW availability for transmission line?</td></tr>
-      <tr><td>Scope clarification</td><td>Execution team can flag capacity splits, sub-project boundaries, or revisions needed.</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-green"><strong>Gate 1 Approved:</strong> Capacity brief + site data auto-sent to Design &amp; Engineering. NetSuite project status → <em>"Design In Progress"</em>.</div>
-  <div class="callout callout-red"><strong>Revision Required:</strong> Platform routes back to Sales with specific change request. Revised brief must be resubmitted for Gate 1 re-review before design begins.</div>
-</div>
-
-<!-- § 6 DESIGN -->
-<div class="page-section" id="design">
-  <div class="section-eyebrow"><span class="sec-num">§ 6</span><span class="sec-tag">Department 02</span></div>
-  <div class="section-title">Design &amp; Engineering</div>
-  <div class="section-desc">Receives confirmed capacity brief from execution team. Generates GIS-based satellite site map with panel placement, electrical layout, SLD, and civil drawings — then submits for Execution Gate 2 before BOQ compilation.</div>
-
-  <div class="callout callout-amber"><strong>Current problem:</strong> Panel placement is 2–3 day manual CAD work. SLD &amp; electrical design drawn from scratch for every project. BOQ disconnected from drawings. No link between design outputs and proposal sections.</div>
-
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin:20px 0 6px;">AI SLD Generator — 4-Step Workflow</div>
-  <div class="step-flow">
-    <div class="step-block"><div class="step-num">Step 1</div><div class="step-title">Describe Scheme</div><div class="step-desc">Engineer types plain-text substation/solar scheme. Bedrock AI parses it.</div></div>
-    <div class="step-arrow">→</div>
-    <div class="step-block"><div class="step-num">Step 2</div><div class="step-title">Project Inputs</div><div class="step-desc">AI auto-tags voltage, transformers, bay counts. Engineer adds company name, project number.</div></div>
-    <div class="step-arrow">→</div>
-    <div class="step-block"><div class="step-num">Step 3</div><div class="step-title">Design Inputs</div><div class="step-desc">Layout notes (yard footprint, roads, keep-out zones) + Protection notes (philosophy, CT/PT overrides).</div></div>
-    <div class="step-arrow">→</div>
-    <div class="step-block"><div class="step-num">Results</div><div class="step-title">4 Outputs Ready</div><div class="step-desc">SLD · Layout · Protection diagrams + Excel BOQ workbook. Download DWG / DXF / SVG.</div></div>
-  </div>
-
-  <table class="data-table" style="margin-top:16px;">
-    <thead><tr><th>Output</th><th>Format</th><th>Description</th><th>Role in Proposal</th></tr></thead>
-    <tbody>
-      <tr><td>SLD Diagram</td><td><span class="chip">DXF / DWG / SVG</span></td><td>Single-line diagram with all equipment and protection elements</td><td>Sections 4 &amp; 5</td></tr>
-      <tr><td>Layout Diagram</td><td><span class="chip">DXF / DWG / SVG</span></td><td>General arrangement and bay layout view</td><td>Design package</td></tr>
-      <tr><td>Protection Diagram</td><td><span class="chip">DXF / DWG / SVG</span></td><td>Protection and metering view with CT/PT and relay annotations</td><td>Design package</td></tr>
-      <tr><td>Excel BOQ Workbook</td><td><span class="chip">XLSX</span></td><td>Bill of Quantities: module count, cable lengths, MMS tonnage, equipment list</td><td>Handed to SCM for pricing</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-red"><strong>Key Dependency — AutoCAD Native MCP Connector:</strong> Not yet available from Autodesk. Advanced AI-native AutoCAD editing deferred. File-based DXF upload is the interim approach.</div>
-  <div class="callout callout-blue"><strong>POC Status (M3.1 — In Progress):</strong> Claude AI (Opus 4.6) integrated. AI chat-based AutoCAD file upload &amp; edit delivered. SLD preview live. DXF ↔ DWG converter (Beta) working. Remaining: ODA DWG pipeline stabilisation and engineer review UI with markup tools.</div>
-</div>
-
-<!-- § 7 GATE 2 -->
-<div class="page-section" id="gate2">
-  <div class="section-eyebrow"><span class="sec-num">§ 7</span><span class="sec-tag">Gate</span></div>
-  <div class="section-title">Execution Gate 2 — Design Confirmation</div>
-  <div class="section-desc">Execution team reviews the complete design package before releasing to SCM for pricing.</div>
-
-  <table class="data-table">
-    <thead><tr><th>Check Item</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td>Panel layout buildability</td><td>Row spacing, tilt angles, inter-row distances achievable with standard MMS? Civil scope matches layout?</td></tr>
-      <tr><td>Power evacuation feasibility</td><td>Transmission line route practical? ROW constraints, water bodies, or obstructions on route?</td></tr>
-      <tr><td>Civil &amp; construction scope</td><td>Land levelling, fencing, MCR building, cable trenches, foundations align with site conditions?</td></tr>
-      <tr><td>Sub-project split validation</td><td>Confirms sub-project split is viable with one ABT meter at substation end.</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-green"><strong>Gate 2 Approved:</strong> Design package (satellite image + layout DWG + SLD + equipment list) auto-released to SCM. NetSuite status → <em>"BOQ Pricing In Progress"</em>.</div>
-</div>
-
-<!-- § 8 SCM -->
-<div class="page-section" id="scm">
-  <div class="section-eyebrow"><span class="sec-num">§ 8</span><span class="sec-tag">Department 03</span></div>
-  <div class="section-title">SCM — BOQ &amp; Pricing</div>
-  <div class="section-desc">Receives approved design package. Generates Bill of Quantities and prices it using the SCM pricing knowledge base. Produces cost-loaded BOQ for proposal generation.</div>
-
-  <div class="callout callout-amber"><strong>Current problem:</strong> SCM queried manually for every proposal — 50+ cable SKUs, modules, MMS. No self-service KB. Price volatility not tracked.</div>
-
-  <table class="data-table" style="margin-top:16px;">
-    <thead><tr><th>Item</th><th>Rule</th><th>Priority</th></tr></thead>
-    <tbody>
-      <tr><td>Thumb-rule pricing</td><td>Capacity × ₹/MWp rate from SCM KB (location-specific). Auto-applied for 95%+ of first proposals. Validity: 7 days.</td><td><span class="badge-p1">P1</span></td></tr>
-      <tr><td>Stale pricing alert</td><td>Proposals using rates older than 7 days flagged red. SCM re-confirmation required before PDF generation.</td><td><span class="badge-p1">P1</span></td></tr>
-      <tr><td>OMS terms</td><td>₹5 Lakhs/MWp/year × capacity. 5% annual escalation. Quarterly advance. Auto-structured per Sorigin standard.</td><td><span class="badge-p1">P1</span></td></tr>
-      <tr><td>PV escalation clause</td><td>Section 7H auto-included in all solar proposals. Protects against module price spikes post-signing.</td><td><span class="badge-p1">P1</span></td></tr>
-      <tr><td>Detailed component pricing</td><td>₹/Wp, ₹/kW, ₹/MT, ₹/km per SKU. 50+ cable SKUs. Per-item validity windows.</td><td><span class="badge-p2">P2</span></td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- § 9 BD -->
-<div class="page-section" id="bd">
-  <div class="section-eyebrow"><span class="sec-num">§ 9</span><span class="sec-tag">Department 04</span></div>
-  <div class="section-title">BD Team — Proposal Generation</div>
-  <div class="section-desc">AI assembles the complete techno-commercial proposal matching Sorigin's SRESPL format from all NetSuite data. BD reviews, manager approves pricing, proposal sent to client.</div>
-
-  <div class="callout callout-amber"><strong>Current problem:</strong> BD manually collects data from email/WhatsApp/CAD files and types into Word template — 1–2 days per proposal. No proposal numbering system. No post-send tracking.</div>
-
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin:20px 0 10px;">SRESPL Proposal Sections — Auto-Populated from NetSuite</div>
-  <div class="proposal-grid">
-    <div class="ps-item"><div class="ps-num">§1</div><div><div class="ps-name">Executive Summary</div><div class="ps-source">Lead intake + capacity brief</div></div></div>
-    <div class="ps-item"><div class="ps-num">§2</div><div><div class="ps-name">Site Details</div><div class="ps-source">Location intelligence auto-fetched (all 11 particulars)</div></div></div>
-    <div class="ps-item"><div class="ps-num">§3</div><div><div class="ps-name">Site Satellite Image</div><div class="ps-source">GIS layout image from Design Studio (with panel overlay)</div></div></div>
-    <div class="ps-item"><div class="ps-num">§4</div><div><div class="ps-name">Project Configuration</div><div class="ps-source">Capacity calc: DC/AC MWp, module, inverter, DC:AC ratio, GHI</div></div></div>
-    <div class="ps-item"><div class="ps-num">§5</div><div><div class="ps-name">Power Evacuation</div><div class="ps-source">Location intelligence + design data</div></div></div>
-    <div class="ps-item"><div class="ps-num">§6</div><div><div class="ps-name">Execution Timelines</div><div class="ps-source">6–8 months from NTP — Sorigin standard template</div></div></div>
-    <div class="ps-item"><div class="ps-num">§7</div><div><div class="ps-name">Commercial Terms</div><div class="ps-source">SCM pricing KB · 8 conditions (A–H) including PV escalation</div></div></div>
-    <div class="ps-item"><div class="ps-num">§8</div><div><div class="ps-name">Payment Terms</div><div class="ps-source">9-milestone schedule — Sorigin standard template</div></div></div>
-    <div class="ps-item"><div class="ps-num">§9</div><div><div class="ps-name">OMS Commercial Terms</div><div class="ps-source">₹/MWp/year × capacity; 5% escalation; quarterly advance</div></div></div>
-    <div class="ps-item"><div class="ps-num">§10</div><div><div class="ps-name">OMS Payment Terms</div><div class="ps-source">Quarterly advance structure — Sorigin standard</div></div></div>
-    <div class="ps-item"><div class="ps-num">Ann. A</div><div><div class="ps-name">EPC Scope</div><div class="ps-source">Responsibility matrix — 10 scope categories</div></div></div>
-    <div class="ps-item"><div class="ps-num">Ann. B</div><div><div class="ps-name">Tech Specs</div><div class="ps-source">17-component specification + approved makes table</div></div></div>
-    <div class="ps-item"><div class="ps-num">Ann. C</div><div><div class="ps-name">Warranty</div><div class="ps-source">4-item warranty table with OEM back-to-back</div></div></div>
-  </div>
-
-  <div class="callout callout-green"><strong>Proposal number auto-assigned:</strong> <code style="font-family:var(--mono);font-size:11px;background:var(--green-light);padding:1px 5px;border-radius:3px;">SRESPL / YY / S / [State] / [Seq]</code> — year, type (S=Solar), state code, sequential number from NetSuite registry. Revision tracking (Rev 00, Rev 01) managed automatically.</div>
-</div>
-
-<!-- § 10 FUNCTIONAL REQUIREMENTS -->
-<div class="page-section" id="requirements">
-  <div class="section-eyebrow"><span class="sec-num">§ 10</span><span class="sec-tag">Requirements</span></div>
-  <div class="section-title">Functional Requirements</div>
-  <div class="section-desc">Priority-tagged requirements covering every stage of the Lead → Proposal workflow.</div>
-
-  <div class="fr-group-title">Sales &amp; Capacity</div>
-  <div class="fr-list">
-    <div class="fr-row"><div class="fr-id">FR-S1</div><div class="fr-desc">Lead import (Apollo/LinkedIn CSV); AI intent score 0–100; price-collector filter; outreach recommendations</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S2</div><div class="fr-desc">Bill OCR: kWh, kVA, tariff, sanctioned load at ≥95% accuracy on MSEDCL/DISCOM formats</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S3</div><div class="fr-desc">Solar capacity (MWp/MW), DC:AC ratio, GHI, CAPEX/OPEX comparison auto-computed</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S4</div><div class="fr-desc">Existing solar/BESS deduction from net requirement via structured intake form</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S5</div><div class="fr-desc">BESS sizing for standard ranges + auto-escalation to specialist for non-standard</div><div><span class="badge-p2">P2</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S6</div><div class="fr-desc">Location intelligence: GHI, nearest substation, voltage, aerial distance from coordinates</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-S7</div><div class="fr-desc">All data auto-saved to NetSuite project record; capacity brief routed to Execution Gate 1</div><div><span class="badge-p1">P1</span></div></div>
-  </div>
-
-  <div class="fr-group-title">Execution Gates</div>
-  <div class="fr-list">
-    <div class="fr-row"><div class="fr-id">FR-G1</div><div class="fr-desc">Gate 1: Review interface; approve or revise with mandatory comment; NetSuite status auto-updated; email notification to next team</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-G2</div><div class="fr-desc">Gate 2: Design package review; buildability confirmation checklist; approve or revise; auto-release to SCM on approval</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-G3</div><div class="fr-desc">All gate decisions logged in NetSuite audit trail: reviewer, decision, timestamp, comment — immutable</div><div><span class="badge-p1">P1</span></div></div>
-  </div>
-
-  <div class="fr-group-title">Design &amp; Engineering — AI SLD Generator</div>
-  <div class="fr-list">
-    <div class="fr-row"><div class="fr-id">FR-D1</div><div class="fr-desc">GIS satellite image from GPS; plot boundary auto-traced; panel placement overlay with shading analysis</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D2</div><div class="fr-desc">Achievable MWp confirmation from layout (±2% tolerance against capacity target from Gate 1)</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D3</div><div class="fr-desc">Electrical design: string config, ACJB, inverter positions, HT yard, evacuation line routing</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D4</div><div class="fr-desc">Engineer review interface: markup tools, AI revision cycles (max 3), senior approval gate, DWG export via ODA</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D5</div><div class="fr-desc">Approved satellite image + panel overlay auto-linked to Proposal Section 3; design data populates Sections 4 &amp; 5</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D6</div><div class="fr-desc">Excel BOQ extracted from design data (module count, cable lengths, MMS, inverters, transformers)</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D7</div><div class="fr-desc">Session save/resume at any step; sessions linked to NetSuite; reusable as project templates</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-D8</div><div class="fr-desc">Session template reuse: pre-populate new session from saved session; source session recorded in metadata</div><div><span class="badge-p2">P2</span></div></div>
-  </div>
-
-  <div class="fr-group-title">SCM &amp; Pricing</div>
-  <div class="fr-list">
-    <div class="fr-row"><div class="fr-id">FR-C1</div><div class="fr-desc">SCM pricing KB with ₹/MWp thumb-rule rates per location; 7-day validity windows; "last updated" timestamp</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-C2</div><div class="fr-desc">Stale-price red alert: proposal cannot generate until SCM re-confirms or BD acknowledges with documented justification</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-C3</div><div class="fr-desc">OMS terms auto-structured: rate × MWp/year, 5% annual escalation, quarterly advance payment milestones</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-C4</div><div class="fr-desc">Detailed component-level pricing: ₹/Wp, ₹/kW, ₹/MT, ₹/km per SKU (50+ cable SKUs), per-item validity windows</div><div><span class="badge-p2">P2</span></div></div>
-  </div>
-
-  <div class="fr-group-title">BD — Proposal Generation</div>
-  <div class="fr-list">
-    <div class="fr-row"><div class="fr-id">FR-P1</div><div class="fr-desc">All 13 sections/annexures auto-populated from NetSuite; BD reviews editable preview before generating PDF</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-P2</div><div class="fr-desc">Proposal number auto-assigned: SRESPL/YY/[Type]/[State]/[Seq]; revision tracking (Rev 00, Rev 01) in registry</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-P3</div><div class="fr-desc">Manager approval: historical comparables, win/loss by price point, AI ₹/MWp recommendation, margin impact ±₹5L/MWp</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-P4</div><div class="fr-desc">Sorigin-branded PDF in SRESPL format; A4; all sections and annexures; proposal number and revision on cover</div><div><span class="badge-p1">P1</span></div></div>
-    <div class="fr-row"><div class="fr-id">FR-P5</div><div class="fr-desc">Proposal tracking: client engagement monitoring post-dispatch; staleness alerts at 7 days (active) / 30 days (pipeline)</div><div><span class="badge-p2">P2</span></div></div>
+<!-- STEP 4 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">4</div><h3>Power Evacuation</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Nearest Substation</label><input type="text" id="substation" value="220/132 kV Vairag Substation"/></div>
+      <div class="form-group"><label>Connectivity Voltage (kV)</label><input type="text" id="connVoltage" value="33 kV"/></div>
+      <div class="form-group"><label>Aerial Distance to SS</label><input type="text" id="ssDist" value="~5.6 km"/></div>
+      <div class="form-group"><label>Substation Owner</label><input type="text" id="ssOwner" value="MSETCL"/></div>
+    </div>
   </div>
 </div>
 
-<!-- § 11 NFR -->
-<div class="page-section" id="nfr">
-  <div class="section-eyebrow"><span class="sec-num">§ 11</span><span class="sec-tag">Requirements</span></div>
-  <div class="section-title">Non-Functional Requirements</div>
-  <table class="data-table">
-    <thead><tr><th>Category</th><th>Requirement</th><th>Target</th></tr></thead>
-    <tbody>
-      <tr><td><span class="nfr-pill nfr-perf">Performance</span></td><td>Bill OCR extraction and capacity calculation</td><td>&lt; 2 minutes end-to-end</td></tr>
-      <tr><td><span class="nfr-pill nfr-perf">Performance</span></td><td>AI SLD Generator — full drawing set (SLD + Layout + Protection + BOQ)</td><td>&lt; 15 minutes from Step 3</td></tr>
-      <tr><td><span class="nfr-pill nfr-perf">Performance</span></td><td>Proposal auto-assembly from NetSuite data</td><td>&lt; 3 minutes to preview-ready</td></tr>
-      <tr><td><span class="nfr-pill nfr-perf">Performance</span></td><td>Full AI generation job result in browser</td><td>&lt; 20 minutes; poll every 3 sec</td></tr>
-      <tr><td><span class="nfr-pill nfr-acc">Accuracy</span></td><td>Bill data extraction (kWh, kVA, tariff)</td><td>≥ 95% on MSEDCL / DISCOM formats</td></tr>
-      <tr><td><span class="nfr-pill nfr-acc">Accuracy</span></td><td>Capacity calculation vs specialist-computed value</td><td>± 5% tolerance on standard projects</td></tr>
-      <tr><td><span class="nfr-pill nfr-acc">Accuracy</span></td><td>GIS panel placement vs achievable capacity</td><td>± 2% tolerance — confirmed at Gate 2</td></tr>
-      <tr><td><span class="nfr-pill nfr-avail">Availability</span></td><td>Platform uptime during business hours (IST, Mon–Sat)</td><td>99.5% — &lt; 3.6 hours downtime/month</td></tr>
-      <tr><td><span class="nfr-pill nfr-sec">Security</span></td><td>Client bills, financial data, commercial terms</td><td>AES-256 at rest; TLS 1.3 in transit; JWT RBAC (4 roles)</td></tr>
-      <tr><td><span class="nfr-pill nfr-sec">Security</span></td><td>AI SaaS API key</td><td>EC2 environment variable only; never browser-exposed; rotated quarterly</td></tr>
-      <tr><td><span class="nfr-pill nfr-scale">Scalability</span></td><td>Concurrent AI job requests</td><td>Async job queue; 10+ concurrent without degradation</td></tr>
-      <tr><td><span class="nfr-pill nfr-infra">Infrastructure</span></td><td>AWS region + MongoDB cluster</td><td>ap-south-1 (Mumbai) for data residency</td></tr>
-      <tr><td><span class="nfr-pill nfr-integ">Integrations</span></td><td>NetSuite CRM</td><td>Phase 1 — bidirectional sync for project records</td></tr>
-      <tr><td><span class="nfr-pill nfr-integ">Integrations</span></td><td>ODA platform (DWG export)</td><td>Phase 2 stabilisation; PDF/SVG fallback in Phase 1</td></tr>
-      <tr><td><span class="nfr-pill nfr-audit">Audit</span></td><td>All AI-generated drawings and proposals</td><td>Immutable audit trail: generation → markup → revisions → approvals. Retained 7 years.</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- § 10.6 RBAC -->
-<div class="page-section" id="rbac">
-  <div class="section-eyebrow"><span class="sec-num">§ 10.6</span><span class="sec-tag">Access Control</span></div>
-  <div class="section-title">Role-Based Access Control</div>
-  <div class="section-desc">JWT-based RBAC enforced across all modules. Every user is assigned exactly one role. Unauthorised access returns HTTP 403.</div>
-  <div class="rbac-grid">
-    <div class="rbac-card rbac-viewer"><div class="rbac-role">Viewer</div><div class="rbac-who">Execution Team (Gate reviewers, read-only) · Senior Engineers reviewing but not editing</div><div class="rbac-perms">Read-only access to proposals, design packages, capacity briefs, and BOQ data. Cannot create, edit, or approve anything.</div></div>
-    <div class="rbac-card rbac-editor"><div class="rbac-role">Editor</div><div class="rbac-who">Sales AMs · Design Engineers · SCM Team Members</div><div class="rbac-perms">Create and edit records within their assigned department. Upload files, run AI jobs, save design sessions, submit for approval. Cannot approve gate decisions.</div></div>
-    <div class="rbac-card rbac-manager"><div class="rbac-role">Manager</div><div class="rbac-who">BD Manager · Execution Team Lead · Design Lead · SCM Head</div><div class="rbac-perms">All Editor permissions + approve/revise Gate 1 &amp; Gate 2; approve proposal pricing; stamp and release design packages; confirm pricing KB rates.</div></div>
-    <div class="rbac-card rbac-sponsor"><div class="rbac-role">Sponsor</div><div class="rbac-who">CEO · Heads of BD / D&amp;E / SCM · Platform Admin (Sorigin Digital)</div><div class="rbac-perms">Full platform access. Manages user accounts, role assignments, platform configuration. Views all audit logs, proposal registries, AI job histories.</div></div>
+<!-- STEP 5 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">5</div><h3>Commercial Terms</h3></div>
+  <div class="card-body">
+    <div class="form-grid three">
+      <div class="form-group"><label>EPC Rate (&#8377; Lakhs/MWp)</label><input type="number" id="epcRate" value="330"/></div>
+      <div class="form-group"><label>Total EPC Cost &#10022; AI</label><input type="text" id="epcTotal" class="ai-field" readonly/></div>
+      <div class="form-group"><label>Execution Timeline</label><input type="text" id="timeline" value="6&#8211;8 months from NTP"/></div>
+      <div class="form-group"><label>OMS Rate (&#8377; Lakhs/MWp/yr)</label><input type="number" id="omsRate" value="5"/></div>
+      <div class="form-group"><label>Annual OMS Cost &#10022; AI</label><input type="text" id="omsTotal" class="ai-field" readonly/></div>
+      <div class="form-group"><label>OMS Escalation (%&nbsp;p.a.)</label><input type="text" id="omsEsc" value="5%"/></div>
+      <div class="form-group"><label>Annual Savings (&#8377; L) &#10022; AI</label><input type="text" id="annualSavings" class="ai-field" readonly/></div>
+      <div class="form-group"><label>Simple Payback (yrs) &#10022; AI</label><input type="text" id="payback" class="ai-field" readonly/></div>
+      <div class="form-group"><label>25-yr Savings (&#8377; Cr) &#10022; AI</label><input type="text" id="lifetimeSavings" class="ai-field" readonly/></div>
+    </div>
+    <div class="calc-bar" style="margin-top:14px">
+      <span>&#9889; Change EPC or OMS rate above, then click <strong>Recalculate</strong> to update all commercial figures.</span>
+      <button class="btn-calc" onclick="calcCommercial(true)">&#x1F504; Recalculate</button>
+    </div>
   </div>
 </div>
 
-<!-- § 14 ROADMAP & RISKS -->
-<div class="page-section" id="roadmap">
-  <div class="section-eyebrow"><span class="sec-num">§ 14</span><span class="sec-tag">Roadmap &amp; Risks</span></div>
-  <div class="section-title">Implementation Roadmap &amp; Milestones</div>
-  <div class="section-desc">Modular, parallel delivery across 5 phases spanning 36 weeks. Each milestone has a defined owner, deliverables, and measurable exit criterion. Fortnightly status reviews.</div>
-
-  <div class="phase-summary">
-    <div class="psc psc-p1"><div class="psc-label">P1 — Foundation</div><div class="psc-name">Infrastructure, Auth, File Upload</div><div class="psc-weeks">Wks 1–3</div><div class="psc-num">3</div><div class="psc-nlabel">milestones</div></div>
-    <div class="psc psc-p2"><div class="psc-label">P2 — Sales AI Core</div><div class="psc-name">Bill OCR, Capacity, Lead Scoring, Gate 1</div><div class="psc-weeks">Wks 4–8</div><div class="psc-num">5</div><div class="psc-nlabel">milestones</div></div>
-    <div class="psc psc-p3"><div class="psc-label">P3 — Design AI</div><div class="psc-name">AI SLD, GIS Layout, Electrical, BESS, BOQ</div><div class="psc-weeks">Wks 9–18</div><div class="psc-num">7</div><div class="psc-nlabel">milestones</div></div>
-    <div class="psc psc-p4"><div class="psc-label">P4 — SCM &amp; BD</div><div class="psc-name">Pricing KB, Proposal Assembly, UAT</div><div class="psc-weeks">Wks 19–26</div><div class="psc-num">5</div><div class="psc-nlabel">milestones</div></div>
-    <div class="psc psc-p5"><div class="psc-label">P5 — Intelligence</div><div class="psc-name">Tracking, Analytics, Detailed BOQ, ODA</div><div class="psc-weeks">Wks 27–36</div><div class="psc-num">5</div><div class="psc-nlabel">milestones</div></div>
-  </div>
-
-  <div class="phase-hdr"><span class="phase-badge pb-p1">Phase 1</span><span class="phase-hdr-title">Foundation — Infrastructure, Auth, File Upload</span><span class="phase-hdr-weeks">Wks 1–3</span></div>
-  <div class="ms-list">
-    <div class="ms-row"><div class="ms-id">M1.1</div><div class="ms-name">Infrastructure Setup</div><div class="ms-time">Wks 1–2 · Engineering</div><div class="ms-del">EC2, MongoDB Atlas, S3, CI/CD, HTTPS certs. Exit: HTTPS 200, MongoDB ping OK, S3 put/get pass.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M1.2</div><div class="ms-name">Auth &amp; User Management</div><div class="ms-time">Wks 2–3 · Engineering</div><div class="ms-del">JWT login, 4-role RBAC, session storage, password reset. Exit: all roles access correct dashboards.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M1.3</div><div class="ms-name">Proposal Input Form — Upload &amp; Parse</div><div class="ms-time">Wks 3–4 · Eng + BD</div><div class="ms-del">Excel template upload, server-side parser for 35 fields, validation, JSON to MongoDB. Exit: 5 test files parse with zero errors.</div><div></div></div>
-  </div>
-
-  <div class="phase-hdr"><span class="phase-badge pb-p2">Phase 2</span><span class="phase-hdr-title">Sales AI Core — Bill OCR, Capacity, Lead Scoring, Gate 1</span><span class="phase-hdr-weeks">Wks 4–8</span></div>
-  <div class="ms-list">
-    <div class="ms-row"><div class="ms-id">M2.1</div><div class="ms-name">Electricity Bill OCR</div><div class="ms-time">Wks 4–5 · Eng + AI</div><div class="ms-del">Bedrock-powered bill extraction, MSEDCL format support, confidence scoring. Exit: ≥95% accuracy on 20 test bills.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M2.2</div><div class="ms-name">Capacity Calculator</div><div class="ms-time">Wks 5–6 · Eng + Sales</div><div class="ms-del">DC MWp / AC MW engine, DC:AC ratio, GHI fetch, CAPEX/OPEX model. Exit: ±5% vs specialist on 10 test cases.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M2.3</div><div class="ms-name">Location Intelligence</div><div class="ms-time">Wks 6–7 · Engineering</div><div class="ms-del">GPS → reverse geocode, substation lookup ≤20km, aerial distance, GHI. Exit: site card &lt;5 sec for 5 Maharashtra sites.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M2.4</div><div class="ms-name">Lead Scoring (Apollo/LinkedIn)</div><div class="ms-time">Wks 7–8 · Eng + Sales</div><div class="ms-del">CSV import, AI intent scoring 0–100, bucket routing, outreach sequences. Exit: 50-row CSV scored in &lt;30 sec.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M2.5</div><div class="ms-name">Execution Gate 1</div><div class="ms-time">Wk 8 · Eng + BD</div><div class="ms-del">Gate 1 React UI, approve/revise workflow, structured comments, NetSuite update, email notification. Exit: flow functional end-to-end.</div><div></div></div>
-  </div>
-
-  <div class="phase-hdr"><span class="phase-badge pb-p3">Phase 3</span><span class="phase-hdr-title">Design AI &amp; Gate 2 — GIS Layout, Electrical, BESS, BOQ</span><span class="phase-hdr-weeks">Wks 9–18</span></div>
-  <div class="ms-list">
-    <div class="ms-row ms-active"><div class="ms-id">M3.1</div><div class="ms-name">AI SLD Generator Integration</div><div class="ms-time">Wks 9–11 · Eng + Design</div><div class="ms-del">POC demoed: AI chat AutoCAD upload/edit, SLD preview, DXF↔DWG converter, Claude Opus 4.6 integrated. Remaining: ODA stabilisation, engineer review UI with markup tools.</div><div><span class="active-pill">In Progress</span></div></div>
-    <div class="ms-row"><div class="ms-id">M3.2</div><div class="ms-name">GIS Panel Layout Generation</div><div class="ms-time">Wks 11–13 · Eng + Design</div><div class="ms-del">Satellite image fetch, plot boundary trace, AI panel row placement, shading analysis. Exit: ±2% of manual estimate for Thermax Solapur site.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M3.3</div><div class="ms-name">Electrical Design (SLD → Electrical)</div><div class="ms-time">Wks 13–15 · Eng + Design</div><div class="ms-del">String config, ACJB/inverter, HT yard, evacuation routing. Exit: full electrical package for 40MWp test project.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M3.4</div><div class="ms-name">Design Session Save / Resume</div><div class="ms-time">Wks 15–16 · Engineering</div><div class="ms-del">Session persistence in MongoDB + S3, session list UI, resume from checkpoint, template reuse. Exit: engineer saves, refreshes, resumes from exact last step.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M3.5</div><div class="ms-name">Excel BOQ Extraction</div><div class="ms-time">Wks 16–17 · Eng + SCM</div><div class="ms-del">AI BOQ from approved design data (modules, cables, MMS, inverters), XLSX to S3. Exit: BOQ within ±3% of SCM manual count.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M3.6</div><div class="ms-name">Execution Gate 2 (Design Review)</div><div class="ms-time">Wks 17–18 · Eng + BD</div><div class="ms-del">Gate 2 React UI, buildability checklist, civil scope review, approve/revise, auto-release to SCM. Exit: approved package routed to SCM, NetSuite updated.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M3.7</div><div class="ms-name">BESS Sizing Module</div><div class="ms-time">Wk 18 · Eng + Design</div><div class="ms-del">Standard-range BESS sizing, specialist escalation, risk flags. Exit: 1MWh standard case ±5%; non-standard auto-escalates.</div><div></div></div>
-  </div>
-
-  <div class="phase-hdr"><span class="phase-badge pb-p4">Phase 4</span><span class="phase-hdr-title">SCM, Proposal &amp; BD — Pricing KB, Assembly, UAT</span><span class="phase-hdr-weeks">Wks 19–26</span></div>
-  <div class="ms-list">
-    <div class="ms-row"><div class="ms-id">M4.1</div><div class="ms-name">SCM Pricing Knowledge Base</div><div class="ms-time">Wks 19–20 · Eng + SCM</div><div class="ms-del">Location-specific ₹/MWp rate KB, 7-day validity, stale-price red flag, OMS rate store. Exit: 7-day expiry triggers red flag for 5 locations.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M4.2</div><div class="ms-name">Proposal Auto-Assembly (10 Sections)</div><div class="ms-time">Wks 20–22 · Eng + BD</div><div class="ms-del">NetSuite data pull, all 10 SRESPL sections auto-populated, satellite image in Section 3, PDF generation, proposal number registry. Exit: full PDF for Thermax case, zero empty fields.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M4.3</div><div class="ms-name">Manager Pricing Approval Interface</div><div class="ms-time">Wks 22–23 · Eng + BD</div><div class="ms-del">Historical comparables, win/loss data, AI ₹/MWp recommendation, one-click approve, audit log. Exit: manager reviews 3 comps, approves in one click.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M4.4</div><div class="ms-name">Full End-to-End Integration Test</div><div class="ms-time">Wks 23–24 · All Teams</div><div class="ms-del">Full pipeline: input form → bill OCR → capacity → Gate 1 → SLD → Gate 2 → BOQ → pricing → PDF → client ready. Exit: Thermax 39.48 MWp in &lt;4 hours by Sales AM.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M4.5</div><div class="ms-name">UAT &amp; Handover</div><div class="ms-time">Wks 25–26 · All Teams</div><div class="ms-del">UAT with real team members, bug fixes, performance tuning, documentation, training. Exit: all 4 departments sign off; zero P1 bugs; platform live for real proposals.</div><div></div></div>
-  </div>
-
-  <div class="phase-hdr"><span class="phase-badge pb-p5">Phase 5</span><span class="phase-hdr-title">Intelligence Layer — Tracking, Analytics, Detailed BOQ, ODA</span><span class="phase-hdr-weeks">Wks 27–36</span></div>
-  <div class="ms-list">
-    <div class="ms-row"><div class="ms-id">M5.1</div><div class="ms-name">Proposal Tracking &amp; Staleness Alerts</div><div class="ms-time">Wks 27–28 · Eng + BD</div><div class="ms-del">Client engagement tracking, configurable thresholds (7/30 days), email + dashboard alerts. Exit: no activity for 7 days → AM and manager receive automatic alert.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M5.2</div><div class="ms-name">Dynamic Lead Scoring Updates</div><div class="ms-time">Wks 28–30 · Engineering</div><div class="ms-del">Score updates on engagement events, dynamic re-ranking. Exit: score updates 60→80 after positive call; lead moves Medium→High.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M5.3</div><div class="ms-name">Detailed BOQ Component Pricing</div><div class="ms-time">Wks 30–32 · Eng + SCM</div><div class="ms-del">Unit rates per component (₹/Wp, ₹/kW, ₹/MT, ₹/km), 50+ cable SKUs, detailed XLSX BOM. Exit: Thermax BOM all 17 categories priced; within 2% of thumb-rule.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M5.4</div><div class="ms-name">ODA DWG Export Stabilisation</div><div class="ms-time">Wks 32–34 · Eng + Design</div><div class="ms-del">ODA platform stabilised, DWG export pipeline robust, retry logic. Exit: DWG export succeeds 100% across 20 consecutive test generations.</div><div></div></div>
-    <div class="ms-row"><div class="ms-id">M5.5</div><div class="ms-name">Win/Loss Analytics Dashboard</div><div class="ms-time">Wks 34–36 · Eng + BD</div><div class="ms-del">Manager dashboard: win rate by ₹/MWp band, proposal-to-close time, lead funnel, stalled accounts. Exit: live with 10+ real proposals, filterable by state and capacity range.</div><div></div></div>
-  </div>
-
-  <div class="callout callout-blue" style="margin-top:20px;">
-    <strong>Milestone Dependencies:</strong> M1.1 → M1.2 → M1.3 must complete before AI integration begins. M2.5 (Gate 1 live) → M3.1 (AI SLD). M3.5 (BOQ) → M3.6 (Gate 2) → M4.1 → M4.2 → M4.3 → M4.4 → M4.5. UAT sign-off (M4.5) is the go-live gate for all Phase 5 enhancements.
-  </div>
-
-  <div class="divider"></div>
-  <div style="font-size:19px;font-weight:800;color:var(--text-dark);margin-bottom:6px;margin-top:4px;">Risk Register</div>
-  <div class="section-desc" style="margin-bottom:16px;">Risks tracked with likelihood, impact, and mitigation actions.</div>
-
-  <div class="risk-list">
-    <div class="risk-card"><div class="risk-id">R1</div><div class="risk-desc"><strong>AI SLD errors → field failures</strong>Incorrect ratings or placement in approved drawings cause on-site construction faults.<div class="risk-mit"><strong>Mitigation:</strong> Dual approval gate (engineer + senior). AI outputs watermarked "AI DRAFT" until approved. Immutable audit trail.</div></div><div><span class="rlevel rl-critical">Critical</span></div></div>
-    <div class="risk-card"><div class="risk-id">R2</div><div class="risk-desc"><strong>GIS overestimates usable area</strong>Obstructions not visible in satellite image reduce achievable MWp. Underpriced proposal sent to client.<div class="risk-mit"><strong>Mitigation:</strong> Gate 1 &amp; 2 both review layout feasibility. AI flags low-confidence areas. Engineer confirms ±2% MWp tolerance (FR-D2).</div></div><div><span class="rlevel rl-high">High</span></div></div>
-    <div class="risk-card"><div class="risk-id">R3</div><div class="risk-desc"><strong>ODA DWG export instability</strong>Current "ODA not found" errors prevent DWG delivery.<div class="risk-mit"><strong>Mitigation:</strong> PDF + SVG export as Phase 1 fallback. ODA stabilisation as M5.4 deliverable. PDF acceptable for proposal.</div></div><div><span class="rlevel rl-medium">Medium</span></div></div>
-    <div class="risk-card"><div class="risk-id">R4</div><div class="risk-desc"><strong>SCM pricing staleness → loss-making proposal</strong>Stale ₹/MWp rate used in proposal; module prices spiked; client accepts and Sorigin locked into loss.<div class="risk-mit"><strong>Mitigation:</strong> 7-day validity windows. Stale-price red flag (FR-C2). PV module price hike clause (Section 7H) auto-included.</div></div><div><span class="rlevel rl-high">High</span></div></div>
-    <div class="risk-card"><div class="risk-id">R5</div><div class="risk-desc"><strong>BESS sizing errors → contract or operational loss</strong>Incorrect kWh/kW sizing leads to underperformance penalties or contract loss.<div class="risk-mit"><strong>Mitigation:</strong> Conservative standard-range thresholds. Specialist escalation for non-standard (FR-S5). Dual approval for BESS proposals.</div></div><div><span class="rlevel rl-critical">Critical</span></div></div>
-    <div class="risk-card"><div class="risk-id">R6</div><div class="risk-desc"><strong>Proposal auto-assembly pulls wrong NetSuite record</strong>Client name, site details, or pricing from another project appear in proposal.<div class="risk-mit"><strong>Mitigation:</strong> BD reviews full 10-section preview before generation (FR-P1). Project record locked during assembly.</div></div><div><span class="rlevel rl-medium">Medium</span></div></div>
-    <div class="risk-card"><div class="risk-id">R7</div><div class="risk-desc"><strong>Low Design team adoption of AI-generated drawings</strong>Engineers revert to manual CAD. Platform fails to deliver speed KPI for D&amp;E stage.<div class="risk-mit"><strong>Mitigation:</strong> Co-design Phase 2 UX with 2 engineers. AI vs manual comparison on 3 real projects in first 60 days.</div></div><div><span class="rlevel rl-medium">Medium</span></div></div>
-    <div class="risk-card"><div class="risk-id">R8</div><div class="risk-desc"><strong>Bedrock API key exposure</strong>API key accessible from browser. Unauthorised usage or data exfiltration risk.<div class="risk-mit"><strong>Mitigation:</strong> Key stored only in EC2 environment variable. AI API called server-side only. Rotated quarterly. VPC restricts egress.</div></div><div><span class="rlevel rl-critical">Critical</span></div></div>
-    <div class="risk-card"><div class="risk-id">R9</div><div class="risk-desc"><strong>AutoCAD MCP connector unavailability delays D&amp;E integration</strong>Native MCP server not yet released by Autodesk. Advanced AI-native AutoCAD editing blocked.<div class="risk-mit"><strong>Mitigation:</strong> File-based DXF upload workflow as interim. Monitor AutoCAD's MCP roadmap. Advanced editing deferred until connector available.</div></div><div><span class="rlevel rl-high">High</span></div></div>
+<!-- STEP 6 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">6</div><h3>Scope Notes (optional)</h3></div>
+  <div class="card-body">
+    <div class="form-group">
+      <label>Sub-project split / Special conditions / Client requests</label>
+      <textarea id="scopeNotes" rows="3" placeholder="e.g. Two sub-projects of 8.7 MW and 19.5 MW. Any special client requirements..."></textarea>
+    </div>
   </div>
 </div>
 
-<!-- GLOSSARY -->
-<div class="page-section" id="glossary">
-  <div class="section-eyebrow"><span class="sec-num">§ 12</span><span class="sec-tag">Reference</span></div>
-  <div class="section-title">Glossary</div>
-  <div class="gloss-grid">
-    <div class="gloss-item"><div class="gloss-term">AWS Bedrock</div><div class="gloss-def">Amazon Web Services Bedrock — foundation model service powering AI generation tasks (model: Nova Pro v1.0)</div></div>
-    <div class="gloss-item"><div class="gloss-term">EC2</div><div class="gloss-def">Elastic Compute Cloud — AWS virtual server hosting the React frontend and Node/Express API</div></div>
-    <div class="gloss-item"><div class="gloss-term">Express API</div><div class="gloss-def">Node.js Express framework — REST API layer handling auth, business logic, file routing, and AI orchestration</div></div>
-    <div class="gloss-item"><div class="gloss-term">JWT</div><div class="gloss-def">JSON Web Token — stateless authentication token issued on login; authorises all API requests</div></div>
-    <div class="gloss-item"><div class="gloss-term">MongoDB</div><div class="gloss-def">Document-oriented NoSQL database for proposal metadata, job records, user sessions, pricing KB, proposal registry</div></div>
-    <div class="gloss-item"><div class="gloss-term">NetSuite</div><div class="gloss-def">Cloud-based ERP and CRM used by Sorigin for project records, proposal registry, and commercial tracking</div></div>
-    <div class="gloss-item"><div class="gloss-term">ODA</div><div class="gloss-def">Open Design Alliance — CAD development platform used to generate and export DWG files from the AI SLD Generator</div></div>
-    <div class="gloss-item"><div class="gloss-term">Presigned URL</div><div class="gloss-def">Time-limited, signed S3 URL allowing browser to download a file directly from S3 without credentials</div></div>
-    <div class="gloss-item"><div class="gloss-term">React SPA</div><div class="gloss-def">Single-Page Application built with React — frontend UI served as static files from EC2</div></div>
-    <div class="gloss-item"><div class="gloss-term">S3</div><div class="gloss-def">Amazon Simple Storage Service — object storage for uploaded bills, GIS images, generated PDFs/DWG/XLSX</div></div>
-    <div class="gloss-item"><div class="gloss-term">SLD</div><div class="gloss-def">Single-Line Diagram — the primary electrical schematic for a substation or solar plant</div></div>
-    <div class="gloss-item"><div class="gloss-term">SRESPL</div><div class="gloss-def">Sorigin Renewables Energy Projects Limited — legal entity under which EPC proposals are issued</div></div>
-    <div class="gloss-item"><div class="gloss-term">TLS</div><div class="gloss-def">Transport Layer Security — encryption protocol securing all HTTPS communication between browser and server</div></div>
-    <div class="gloss-item"><div class="gloss-term">VPC</div><div class="gloss-def">Virtual Private Cloud — isolated AWS network containing the EC2 instance; MongoDB Atlas connects via TLS</div></div>
+<button class="btn-generate" id="generateBtn" onclick="generateProposal()">
+  <span>&#9889;</span> Generate Techno-Commercial Proposal
+</button>
+
+<div id="output-section">
+  <div class="card" style="margin-top:14px">
+    <div class="card-header" style="background:var(--dark-green)">
+      <h3>&#128196; SORIGIN RENEWABLES &#8212; Techno-Commercial Proposal</h3>
+    </div>
+    <div class="card-body">
+      <div class="proposal-wrap" id="proposalContent"></div>
+      <div class="proposal-footer">
+        <button class="btn-action green" onclick="copyProposal()">&#128203; Copy Text</button>
+        <button class="btn-action" onclick="printProposal()">&#128424; Print / Save PDF</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- DOCUMENT CONTROL -->
-<div class="page-section" id="doc-control">
-  <div class="section-eyebrow"><span class="sec-num">DOC</span><span class="sec-tag">Control</span></div>
-  <div class="section-title">Document Control &amp; Approvals</div>
-
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin-bottom:10px;">Approvals</div>
-  <table class="appr-table">
-    <thead><tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr></thead>
-    <tbody>
-      <tr><td>CEO / Executive Sponsor</td><td>Sunil Singh</td><td><span class="sig-line"></span></td><td>—</td></tr>
-      <tr><td>Head of Execution Team</td><td>Manoj Shah</td><td><span class="sig-line"></span></td><td>—</td></tr>
-      <tr><td>Head of Business Development</td><td>Gaurav Gandhi</td><td><span class="sig-line"></span></td><td>—</td></tr>
-      <tr><td>Head of Design &amp; Engineering</td><td>Nagendra Sahu</td><td><span class="sig-line"></span></td><td>—</td></tr>
-      <tr><td>Head of SCM</td><td>Dipti Ranjan Das</td><td><span class="sig-line"></span></td><td>—</td></tr>
-    </tbody>
-  </table>
-
-  <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);margin:20px 0 10px;">Distribution List</div>
-  <table class="appr-table">
-    <thead><tr><th>Name / Role</th><th>Department</th><th>Action</th></tr></thead>
-    <tbody>
-      <tr><td>CEO</td><td>Leadership</td><td>Executive Sponsor</td></tr>
-      <tr><td>BD Head</td><td>Business Development</td><td>Reviewer &amp; Approver</td></tr>
-      <tr><td>Execution Head</td><td>Execution Team</td><td>Reviewer &amp; Approver</td></tr>
-      <tr><td>Design Lead</td><td>Design &amp; Engineering</td><td>Reviewer &amp; Approver</td></tr>
-      <tr><td>SCM Head</td><td>Supply Chain</td><td>Reviewer &amp; Approver</td></tr>
-      <tr><td>Sales Team Lead</td><td>Sales</td><td>Reviewer</td></tr>
-      <tr><td>Execution Team Lead</td><td>Execution</td><td>Reviewer</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-green" style="margin-top:20px;">
-    <strong>Document number:</strong> SRESPL / BRD / 25 / 001 &nbsp;·&nbsp; <strong>Version:</strong> v1.0 — ReGIN AI &nbsp;·&nbsp; <strong>Date:</strong> April 2026 &nbsp;·&nbsp; <strong>Status:</strong> Draft for CEO and Heads Review
-  </div>
-</div>
-
-</main>
-
+</div><!-- /container -->
 <script>
-// Progress bar
-const fill = document.getElementById('progressFill');
-window.addEventListener('scroll', () => {
-  const h = document.documentElement.scrollHeight - window.innerHeight;
-  fill.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
-});
+const MONTHS=['Apr 2025','May 2025','Jun 2025','Jul 2025','Aug 2025','Sep 2025','Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026'];
+const DEF_U=[88200,91350,79420,76880,83910,81300,87540,74980,78640,82540,74210,93880];
+const DEF_T=[8.10,8.15,8.05,8.00,8.10,8.20,8.25,8.10,8.15,8.20,8.15,8.35];
+const DEF_B=[955777,994122,863636,834946,912918,899326,965757,824512,865962,910400,823632,1042731];
+const GHI=1912.2,PR=0.78,DC_AC=1.4;
 
-// Active nav
-const sectionIds = ['intro','exec-summary','workflow','architecture','sales','gate1','design','gate2','scm','bd','requirements','nfr','rbac','roadmap','glossary','doc-control'];
-const navMap = {
-  'intro': '#intro', 'exec-summary': '#intro',
-  'workflow': '#workflow', 'architecture': '#workflow',
-  'sales': '#sales', 'gate1': '#gate1',
-  'design': '#design', 'gate2': '#gate2',
-  'scm': '#scm', 'bd': '#bd',
-  'requirements': '#requirements', 'nfr': '#nfr',
-  'rbac': '#rbac', 'roadmap': '#roadmap',
-  'glossary': '#glossary', 'doc-control': '#doc-control'
-};
-
-const allNavItems = document.querySelectorAll('.nav-item');
-const topNavItems = document.querySelectorAll('.topbar-nav-item');
-
-const topNavMap = {
-  '#intro': ['Overview'], '#workflow': ['Master Workflow'],
-  '#architecture': ['Master Workflow'],
-  '#sales': ['Overview'], '#gate1': ['Overview'],
-  '#design': ['Overview'], '#gate2': ['Overview'],
-  '#scm': ['Overview'], '#bd': ['Overview'],
-  '#requirements': ['Requirements'], '#nfr': ['Requirements'],
-  '#rbac': ['Requirements'], '#roadmap': ['Roadmap'],
-  '#glossary': ['Roadmap'], '#doc-control': ['Roadmap']
-};
-
-const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const id = e.target.id;
-    const href = navMap[id] || ('#' + id);
-
-    allNavItems.forEach(n => {
-      n.classList.toggle('active', n.getAttribute('href') === href);
-    });
-
-    topNavItems.forEach(t => {
-      const labels = topNavMap[href] || [];
-      t.classList.toggle('active', labels.includes(t.textContent.trim()));
-    });
+function buildBillTable(){
+  const tb=document.getElementById('billTableBody');
+  MONTHS.forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong>${m}</strong></td>
+      <td><input type="number" id="u${i}" value="${DEF_U[i]}"/></td>
+      <td><input type="number" id="t${i}" value="${DEF_T[i]}" step="0.01"/></td>
+      <td><input type="number" id="b${i}" value="${DEF_B[i]}"/></td>`;
+    tb.appendChild(tr);
   });
-}, { rootMargin: '-15% 0px -75% 0px' });
+}
 
-sectionIds.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) obs.observe(el);
-});
+function getBillTotals(){
+  let kWh=0,bill=0,tariff=0;
+  for(let i=0;i<12;i++){
+    kWh  +=parseFloat(document.getElementById('u'+i).value)||0;
+    bill +=parseFloat(document.getElementById('b'+i).value)||0;
+    tariff+=parseFloat(document.getElementById('t'+i).value)||0;
+  }
+  return{kWh,bill,avgTariff:tariff/12};
+}
 
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const t = document.querySelector(a.getAttribute('href'));
-    if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 58, behavior: 'smooth' });
-  });
-});
+function calcSizing(flash){
+  const{kWh,bill,avgTariff}=getBillTotals();
+  const dcMwp=kWh/(GHI*PR*1000);
+  const acMw=dcMwp/DC_AC;
+  const gen=dcMwp*GHI*PR*1000;
+  document.getElementById('sum-annual').textContent=(kWh/1000).toFixed(1)+' MWh';
+  document.getElementById('sum-tariff').textContent='₹'+avgTariff.toFixed(2);
+  document.getElementById('sum-dc').textContent=dcMwp.toFixed(3)+' MWp';
+  document.getElementById('sum-bill').textContent='₹'+(bill/100000).toFixed(2)+' L';
+  setAI('dcMwp',dcMwp.toFixed(3),flash);
+  setAI('acMw',acMw.toFixed(3),flash);
+  setAI('annualGen',(gen/1000).toFixed(1)+' MWh/yr',flash);
+  calcCommercial(flash);
+}
+
+function calcCommercial(flash){
+  const dcMwp=parseFloat(document.getElementById('dcMwp').value)||0;
+  const epcRate=parseFloat(document.getElementById('epcRate').value)||0;
+  const omsRate=parseFloat(document.getElementById('omsRate').value)||0;
+  const epcTotal=dcMwp*epcRate;
+  const omsAnnual=dcMwp*omsRate;
+  const{kWh,bill,avgTariff}=getBillTotals();
+  const gen=dcMwp*GHI*PR*1000;
+  const covered=Math.min(gen,kWh);
+  const annSav=(covered*avgTariff)/100000;
+  const payback=annSav>0?epcTotal/annSav:0;
+  let life=0,s=annSav;
+  for(let y=0;y<25;y++){life+=s;s*=1.05;}
+  setAI('epcTotal','INR '+epcTotal.toFixed(2)+' Lakhs',flash);
+  setAI('omsTotal','INR '+omsAnnual.toFixed(2)+' Lakhs/yr',flash);
+  setAI('annualSavings','₹ '+annSav.toFixed(2)+' Lakhs/yr',flash);
+  setAI('payback',payback>0?payback.toFixed(1)+' yrs':'—',flash);
+  setAI('lifetimeSavings','₹ '+(life/100).toFixed(2)+' Cr',flash);
+}
+
+function setAI(id,val,flash){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.value=val;
+  if(flash){el.classList.remove('calc-flash');void el.offsetWidth;el.classList.add('calc-flash');}
+}
+
+function g(id){return(document.getElementById(id)||{}).value||'';}
+
+function gatherInputs(){
+  let bills='',totKwh=0,totBill=0,totTariff=0;
+  for(let i=0;i<12;i++){
+    const u=parseFloat(document.getElementById('u'+i).value)||0;
+    const t=parseFloat(document.getElementById('t'+i).value)||0;
+    const b=parseFloat(document.getElementById('b'+i).value)||0;
+    totKwh+=u;totBill+=b;totTariff+=t;
+    bills+=MONTHS[i]+': '+u+' kWh @ ₹'+t+'/kWh = ₹'+Math.round(b).toLocaleString('en-IN')+'\n';
+  }
+  return{
+    clientName:g('clientName')||'Client',contactName:g('contactName')||'—',
+    proposalNo:g('proposalNo')||'SRESPL/26/S/MH/001',proposalDate:g('proposalDate'),
+    validityDate:g('validityDate'),preparedBy:g('preparedBy')||'Sorigin BD Team',
+    village:g('village'),district:g('district'),state:g('state'),coords:g('coords'),
+    area:g('area'),landType:g('landType'),landProfile:g('landProfile'),landModel:g('landModel'),
+    dcMwp:g('dcMwp'),acMw:g('acMw'),annualGen:g('annualGen'),
+    bizModel:g('bizModel'),tariffCat:g('tariffCat'),discom:g('discom'),
+    modTech:g('modTech'),invType:g('invType'),bessReq:g('bessReq'),
+    substation:g('substation'),connVoltage:g('connVoltage'),ssDist:g('ssDist'),ssOwner:g('ssOwner'),
+    epcRate:g('epcRate'),epcTotal:g('epcTotal'),timeline:g('timeline'),
+    omsRate:g('omsRate'),omsTotal:g('omsTotal'),omsEsc:g('omsEsc'),
+    annualSavings:g('annualSavings'),payback:g('payback'),lifetimeSavings:g('lifetimeSavings'),
+    scopeNotes:g('scopeNotes'),bills,
+    totalKwh:(totKwh/1000).toFixed(1)+' MWh',
+    totalBill:(totBill/100000).toFixed(2),
+    avgTariff:(totTariff/12).toFixed(2)
+  };
+}
+
+function buildSampleProposal(d){
+  const dcN=parseFloat(d.dcMwp)||0.68;
+  const modules=Math.ceil(dcN*1000/0.580);
+  const invCount=Math.ceil(dcN*1000/100);
+  const milestones=[
+    [1,'Advance',10,'Contract Signing & BG submission'],
+    [2,'Power Evacuation',5,'DISCOM application submitted'],
+    [3,'Design Approval',5,'Drawings approved by Client'],
+    [4,'Land Development',10,'Site levelling & civil work commenced'],
+    [5,'Module Supply',45,'Module delivery at site'],
+    [6,'Inverter Supply',5,'Inverter delivery at site'],
+    [7,'MMS / Structure',5,'Structure erection & module mounting'],
+    [8,'Electrical Completion',10,'HT/LT cabling, switchgear, metering done'],
+    [9,'COD / Handover',5,'Commissioning, grid sync & perf. test passed']
+  ];
+  const epcN=parseFloat(d.epcTotal.replace(/[^0-9.]/g,''))||0;
+  const milRows=milestones.map(([n,name,pct,trigger])=>{
+    const amt=epcN>0?'₹ '+(epcN*pct/100).toFixed(2)+' L':'—';
+    return`<tr><td>${n}</td><td>${name}</td><td>${pct}%</td><td>${amt}</td><td>${trigger}</td></tr>`;
+  }).join('');
+  const billRows=MONTHS.map((m,i)=>{
+    const u=document.getElementById('u'+i)?.value||DEF_U[i];
+    const t=document.getElementById('t'+i)?.value||DEF_T[i];
+    const b=document.getElementById('b'+i)?.value||DEF_B[i];
+    return`<tr><td>${m}</td><td>${parseInt(u).toLocaleString('en-IN')}</td><td>₹${parseFloat(t).toFixed(2)}</td><td>₹ ${parseInt(b).toLocaleString('en-IN')}</td></tr>`;
+  }).join('');
+  return`
+<h1>TECHNO-COMMERCIAL PROPOSAL<br><small style="font-size:13px;font-weight:400">Grid-Connected Solar Power Plant</small></h1>
+<table><tr><td width="45%"><strong>Proposal No.</strong></td><td>${d.proposalNo}</td></tr>
+<tr><td><strong>Date</strong></td><td>${d.proposalDate}</td></tr>
+<tr><td><strong>Valid Until</strong></td><td>${d.validityDate}</td></tr>
+<tr><td><strong>Prepared For</strong></td><td>${d.clientName}</td></tr>
+<tr><td><strong>Attn.</strong></td><td>${d.contactName}</td></tr>
+<tr><td><strong>Prepared By</strong></td><td>${d.preparedBy} — Sorigin Renewables EPC Pvt. Ltd.</td></tr></table>
+
+<h2>Section 1 — Executive Summary</h2>
+<p>Sorigin Renewables EPC Pvt. Ltd. (SRESPL) is pleased to submit this Techno-Commercial Proposal to <strong>${d.clientName}</strong> for a <strong>${d.dcMwp} MWp DC / ${d.acMw} MW AC</strong> grid-connected solar power plant at ${d.village}, ${d.district}, ${d.state}, under the <strong>${d.bizModel}</strong> model.</p>
+<p>The system has been sized based on a 12-month electricity bill analysis. The client's annual consumption stands at <strong>${d.totalKwh}</strong> at an average tariff of <strong>₹${d.avgTariff}/kWh</strong>, resulting in an annual electricity bill of approximately <strong>₹${d.totalBill} Lakhs</strong>. The proposed solar plant will generate <strong>${d.annualGen}</strong> and offset the majority of this consumption, delivering significant savings from Day 1.</p>
+<div class="highlight-box">
+<strong>&#128202; Financial Highlights</strong>
+<table style="margin-top:10px">
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Annual Electricity Bill (Current)</td><td>₹ ${d.totalBill} Lakhs</td></tr>
+<tr><td>Estimated Annual Solar Savings</td><td>${d.annualSavings}</td></tr>
+<tr><td>Total Project Cost (EPC, excl. GST)</td><td>${d.epcTotal}</td></tr>
+<tr><td>Simple Payback Period</td><td>${d.payback}</td></tr>
+<tr><td>25-Year Lifetime Savings (5% tariff escalation)</td><td>${d.lifetimeSavings}</td></tr>
+</table></div>
+
+<h2>Section 2 — Site Details</h2>
+<table><tr><th>Sr.</th><th>Particulars</th><th>Description</th></tr>
+<tr><td>1</td><td>Location</td><td>${d.village}, ${d.district}, ${d.state}</td></tr>
+<tr><td>2</td><td>GPS Coordinates</td><td>${d.coords}</td></tr>
+<tr><td>3</td><td>Total Area Available</td><td>${d.area}</td></tr>
+<tr><td>4</td><td>Land Type</td><td>${d.landType}</td></tr>
+<tr><td>5</td><td>Land Profile</td><td>${d.landProfile}</td></tr>
+<tr><td>6</td><td>Land Model</td><td>${d.landModel}</td></tr>
+<tr><td>7</td><td>Annual GHI (Solar Irradiance)</td><td>${GHI} kWh/m²/year</td></tr>
+<tr><td>8</td><td>DISCOM / Utility</td><td>${d.discom}</td></tr>
+<tr><td>9</td><td>Tariff Category</td><td>${d.tariffCat}</td></tr></table>
+
+<h2>Section 3 — Electricity Bill Analysis (12 Months)</h2>
+<table><tr><th>Month</th><th>Units (kWh)</th><th>Tariff (₹/kWh)</th><th>Bill Amount (₹)</th></tr>
+${billRows}
+<tr style="font-weight:700;background:#e8f7ea"><td><strong>TOTAL / AVG</strong></td><td><strong>${d.totalKwh}</strong></td><td><strong>₹${d.avgTariff} avg</strong></td><td><strong>₹ ${d.totalBill} Lakhs</strong></td></tr></table>
+
+<h2>Section 4 — Project Configuration</h2>
+<table><tr><th>Sr.</th><th>Parameter</th><th>Specification</th></tr>
+<tr><td>1</td><td>DC Capacity</td><td><strong>${d.dcMwp} MWp</strong></td></tr>
+<tr><td>2</td><td>AC Capacity</td><td><strong>${d.acMw} MW</strong></td></tr>
+<tr><td>3</td><td>DC/AC Ratio</td><td>1.40</td></tr>
+<tr><td>4</td><td>Module Technology</td><td>${d.modTech}, 580 Wp+, ≥21.5% efficiency, Tier-1</td></tr>
+<tr><td>5</td><td>Approximate Module Count</td><td>${modules.toLocaleString('en-IN')} Nos.</td></tr>
+<tr><td>6</td><td>Inverter Type</td><td>${d.invType}, IP65, Grid-forming, Anti-islanding</td></tr>
+<tr><td>7</td><td>Approx. Inverter Count</td><td>${invCount} × 100 kW Nos.</td></tr>
+<tr><td>8</td><td>Mounting System</td><td>Fixed-Tilt GMS/MMS, Hot-Dip Galvanized 140 micron</td></tr>
+<tr><td>9</td><td>Annual P90 Energy Generation</td><td>${d.annualGen}</td></tr>
+<tr><td>10</td><td>Performance Ratio (PR)</td><td>${(PR*100).toFixed(0)}%</td></tr>
+<tr><td>11</td><td>Annual GHI</td><td>${GHI} kWh/m²/year</td></tr>
+<tr><td>12</td><td>BESS</td><td>${d.bessReq==='Yes'?'Required — sizing TBD based on load profile':'Not Required at this stage'}</td></tr>
+<tr><td>13</td><td>Monitoring</td><td>Cloud-based SCADA, plant-level &amp; string-level, 24×7</td></tr>
+<tr><td>14</td><td>Business Model</td><td>${d.bizModel}</td></tr></table>
+
+<h2>Section 5 — Power Evacuation Arrangement</h2>
+<table><tr><th>Sr.</th><th>Particulars</th><th>Details</th></tr>
+<tr><td>1</td><td>Nearest Grid Substation</td><td>${d.substation}</td></tr>
+<tr><td>2</td><td>Connectivity Voltage Level</td><td>${d.connVoltage}</td></tr>
+<tr><td>3</td><td>Aerial Distance to Substation</td><td>${d.ssDist}</td></tr>
+<tr><td>4</td><td>Substation Owner / DISCOM</td><td>${d.ssOwner}</td></tr>
+<tr><td>5</td><td>Evacuation Scope</td><td>Included up to metering point at substation boundary</td></tr>
+<tr><td>6</td><td>Metering Arrangement</td><td>Bi-directional Net-metering / Gross-metering per DISCOM norms</td></tr></table>
+
+<h2>Section 6 — Execution Timeline</h2>
+<p>The project will be commissioned within <strong>${d.timeline}</strong> from the date of Notice to Proceed (NTP), subject to site readiness, DISCOM approvals, and timely payments.</p>
+<table><tr><th>Milestone</th><th>Timeline from NTP</th></tr>
+<tr><td>Contract Signing &amp; Advance</td><td>Week 0</td></tr>
+<tr><td>Design Submission &amp; DISCOM Application</td><td>Week 2–3</td></tr>
+<tr><td>Civil &amp; Foundation Work</td><td>Week 3–8</td></tr>
+<tr><td>MMS / Structure Supply &amp; Erection</td><td>Week 6–14</td></tr>
+<tr><td>Module Supply &amp; Installation</td><td>Week 8–18</td></tr>
+<tr><td>Inverter &amp; Electrical Installation</td><td>Week 12–22</td></tr>
+<tr><td>Testing, Commissioning &amp; Grid Sync</td><td>Week 22–26</td></tr>
+<tr><td>Project Handover / COD</td><td>Month 6–8</td></tr></table>
+
+<h2>Section 7 — Commercial Terms (EPC)</h2>
+<table><tr><th>Sr.</th><th>Description</th><th>Value</th></tr>
+<tr><td>1</td><td>DC Capacity</td><td>${d.dcMwp} MWp</td></tr>
+<tr><td>2</td><td>EPC Rate (Lump-Sum, All-Inclusive)</td><td>₹ ${d.epcRate} Lakhs / MWp</td></tr>
+<tr><td>3</td><td><strong>Total EPC Contract Value</strong></td><td><strong>${d.epcTotal}</strong></td></tr>
+<tr><td>4</td><td>GST (as applicable)</td><td>@ 12% on Supply; 18% on Services — charged extra</td></tr>
+<tr><td>5</td><td>Escalation</td><td>Nil — Fixed-Price EPC Contract</td></tr></table>
+<ul style="margin-top:10px">
+<li><strong>Note A:</strong> Prices are exclusive of GST; charged extra at prevailing rates.</li>
+<li><strong>Note B:</strong> New statutory levies introduced post-proposal date are to Client's account.</li>
+<li><strong>Note C:</strong> TDS applicable per Income Tax Act; certificates within 7 days of deduction.</li>
+<li><strong>Note D:</strong> Interest @ 15% p.a. on payments delayed beyond 7 working days of due date.</li>
+<li><strong>Note E:</strong> Proposal valid until <strong>${d.validityDate}</strong>; post-validity pricing subject to revision.</li>
+<li><strong>Note F:</strong> Pricing subject to revision if scope, site conditions, or specs change materially.</li>
+<li><strong>Note G:</strong> Module/inverter pricing linked to market rates; cost-pass-through above ±5% movement.</li>
+<li><strong>Note H:</strong> Indicative proposal; final pricing confirmed post detailed site survey &amp; load flow study.</li></ul>
+
+<h2>Section 8 — Payment Terms (EPC Milestones)</h2>
+<table><tr><th>No.</th><th>Milestone</th><th>%</th><th>Amount</th><th>Trigger Event</th></tr>
+${milRows}</table>
+
+<h2>Section 9 — O&amp;M Service (OMS) Terms</h2>
+<table><tr><th>Sr.</th><th>Description</th><th>Value</th></tr>
+<tr><td>1</td><td>OMS Capacity</td><td>${d.dcMwp} MWp</td></tr>
+<tr><td>2</td><td>OMS Rate</td><td>₹ ${d.omsRate} Lakhs / MWp / Year</td></tr>
+<tr><td>3</td><td><strong>Annual OMS Cost (Year 1)</strong></td><td><strong>${d.omsTotal}</strong></td></tr>
+<tr><td>4</td><td>Annual Escalation</td><td>${d.omsEsc} per annum, compounded</td></tr>
+<tr><td>5</td><td>Contract Period</td><td>5 years (renewable)</td></tr></table>
+<ul style="margin-top:10px">
+<li><strong>Note A:</strong> Scope includes preventive &amp; corrective maintenance, module cleaning, vegetation management, SCADA monitoring, and annual energy audit.</li>
+<li><strong>Note B:</strong> OMS commences from COD (Commercial Operation Date).</li>
+<li><strong>Note C:</strong> Spare parts consumed are chargeable extra at cost.</li>
+<li><strong>Note D:</strong> Uptime guarantee of 98% (excl. force majeure &amp; grid outages) on monthly basis.</li>
+<li><strong>Note E:</strong> Emergency response: 4 hours for critical faults; 24 hours for minor faults.</li>
+<li><strong>Note F:</strong> Penalty/bonus for generation deviation beyond ±5% of P90 — mutually agreed.</li>
+<li><strong>Note G:</strong> All prices exclusive of GST, charged extra at applicable rates.</li></ul>
+
+<h2>Section 10 — OMS Payment Terms</h2>
+<table><tr><th>Billing Cycle</th><th>Amount</th><th>Payment Due</th></tr>
+<tr><td>Quarterly advance billing</td><td>25% of Annual OMS Cost per quarter</td><td>Within 7 working days of invoice</td></tr>
+<tr><td>Late payment interest</td><td>15% p.a.</td><td>Applied after 7-day window</td></tr></table>
+
+<h2>Annexure A — EPC Scope Responsibility Matrix</h2>
+<table><tr><th>Sr.</th><th>Scope Item</th><th>SRESPL</th><th>Client</th></tr>
+${[['Land procurement &amp; registration','—','✔'],['Land development, levelling &amp; fencing','✔','—'],
+['Civil foundations','✔','—'],['Module supply &amp; installation','✔','—'],
+['Inverter supply &amp; installation','✔','—'],['Mounting structure supply &amp; erection','✔','—'],
+['DC cabling, earthing &amp; lightning protection','✔','—'],['AC cabling, LT &amp; HT switchgear','✔','—'],
+['Transformer / pooling substation','✔','—'],['SCADA / monitoring system','✔','—'],
+['Grid connectivity application (DISCOM liaison)','✔','Support'],
+['CEIG / Electrical Inspector approvals','✔','Support'],
+['Net-metering / MEDA registration','✔','Support'],
+['PPA (if OPEX)','—','✔'],['Construction All-Risk Insurance','✔','—']
+].map(([s,sr,cl],n)=>`<tr><td>${n+1}</td><td>${s}</td><td style="text-align:center">${sr}</td><td style="text-align:center">${cl}</td></tr>`).join('')}</table>
+
+<h2>Annexure B — Key Technical Specifications</h2>
+<table><tr><th>Component</th><th>Specification</th><th>Approved Makes</th></tr>
+<tr><td>Solar Module</td><td>${d.modTech}, 580 Wp+, ≥21.5% efficiency, Tier-1, IEC 61215</td><td>Waaree / Adani / Vikram / Renewsys</td></tr>
+<tr><td>Inverter</td><td>${d.invType}, IP65, Grid-forming, Anti-islanding, IEC 62116</td><td>Sungrow / ABB / SMA / Growatt</td></tr>
+<tr><td>Mounting Structure</td><td>Hot-dip galvanized GMS/MMS, 140 micron, wind 150 km/h</td><td>Bonfiglioli / Saatvik / Jakson</td></tr>
+<tr><td>DC Cables</td><td>1100V XLPE, UV-resistant, fire-retardant, IEC 62930</td><td>Polycab / KEI / Havells</td></tr>
+<tr><td>AC Cables</td><td>1100V / 33kV XLPE as applicable</td><td>Polycab / KEI / Sterlite</td></tr>
+<tr><td>Earthing &amp; LA</td><td>GI/Copper, IS 3043 compliant</td><td>Standard IS-approved makes</td></tr>
+<tr><td>SCADA / Monitoring</td><td>String-level + plant-level, cloud-based, 99.5% uptime SLA</td><td>Solis / Fronius / Custom</td></tr>
+<tr><td>Transformer (if applicable)</td><td>33/0.415 kV, ONAN, IS 2026 compliant</td><td>KVAR / CG / ABB / Voltamp</td></tr></table>
+
+<h2>Annexure C — Warranty Terms</h2>
+<table><tr><th>Item</th><th>Warranty Period</th><th>Coverage</th></tr>
+<tr><td>EPC Workmanship</td><td>12 Months from COD</td><td>All civil, electrical &amp; erection defects</td></tr>
+<tr><td>Solar Modules</td><td>25 Years linear power output</td><td>≥97.5% Yr 1; ≤0.55%/yr degradation; 12-yr product warranty</td></tr>
+<tr><td>Inverter</td><td>5 Years (manufacturer)</td><td>Parts &amp; labour; extendable to 10 yrs via AMC</td></tr>
+<tr><td>Mounting Structure</td><td>12 Years against corrosion</td><td>Hot-dip galvanisation integrity</td></tr>
+<tr><td>DC Cables</td><td>10 Years</td><td>UV resistance &amp; electrical insulation</td></tr></table>
+
+<p style="margin-top:24px;font-style:italic;color:#6b7a8a;font-size:12px">
+This proposal has been prepared by <strong>${d.preparedBy}</strong> on behalf of <strong>Sorigin Renewables EPC Pvt. Ltd.</strong> It is strictly confidential and valid until <strong>${d.validityDate}</strong>, after which pricing is subject to revision. This document does not constitute a binding contract — a formal LOI / Work Order and signed EPC Agreement shall govern. All figures are indicative pending final site survey.
+</p>
+<p style="font-size:11px;margin-top:6px;color:#6b7a8a">Sorigin Renewables EPC Pvt. Ltd. | Maharashtra, India | GST: [GSTIN] | CIN: [CIN]</p>`;
+}
+
+async function generateProposal(){
+  const d=gatherInputs();
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Generating...';
+  const out=document.getElementById('output-section');
+  out.style.display='block';
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  const div=document.getElementById('proposalContent');
+  div.innerHTML='<p style="color:var(--muted);padding:20px;text-align:center">&#9203; Building your proposal...</p>';
+
+  const prompt=`You are a solar EPC proposal writer for SORIGIN RENEWABLES (SRESPL). Write a complete Techno-Commercial Proposal in HTML only (h1,h2,table,tr,th,td,ul,li,p,strong — no markdown, no backtick fences).
+CLIENT: ${d.clientName} | ${d.contactName} | ${d.proposalNo} | ${d.proposalDate} | Valid: ${d.validityDate}
+SITE: ${d.village}, ${d.district}, ${d.state} | ${d.coords} | ${d.area} | ${d.landType}, ${d.landProfile}, ${d.landModel}
+BILLS: ${d.bills}
+SIZING: DC ${d.dcMwp} MWp | AC ${d.acMw} MW | Gen: ${d.annualGen} | Tariff cat: ${d.tariffCat} | DISCOM: ${d.discom}
+TECH: ${d.modTech} | ${d.invType} | BESS: ${d.bessReq} | Model: ${d.bizModel}
+EVACUATION: ${d.substation} | ${d.connVoltage} | ${d.ssDist} | ${d.ssOwner}
+COMMERCIAL: EPC ₹${d.epcRate} L/MWp = ${d.epcTotal} | OMS ₹${d.omsRate} L/MWp/yr = ${d.omsTotal} | Esc: ${d.omsEsc} | Savings: ${d.annualSavings} | Payback: ${d.payback} | 25yr: ${d.lifetimeSavings}`;
+
+  let usedAPI=false;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,stream:true,
+        messages:[{role:'user',content:prompt}]})
+    });
+    if(resp.ok){
+      const reader=resp.body.getReader(),dec=new TextDecoder();
+      let full='';div.innerHTML='';
+      while(true){
+        const{done,value}=await reader.read();if(done)break;
+        dec.decode(value).split('\n').forEach(line=>{
+          if(line.startsWith('data: ')){
+            try{const data=JSON.parse(line.slice(6));
+              if(data.type==='content_block_delta'&&data.delta?.text){
+                full+=data.delta.text;div.innerHTML=full;
+              }
+            }catch(e){}
+          }
+        });
+      }
+      if(full.trim().length>200)usedAPI=true;
+    }
+  }catch(e){}
+
+  if(!usedAPI) div.innerHTML=buildSampleProposal(d);
+  btn.disabled=false;
+  btn.innerHTML='<span>&#9889;</span> Regenerate Proposal';
+  document.getElementById('output-section').scrollIntoView({behavior:'smooth'});
+}
+
+function copyProposal(){
+  navigator.clipboard.writeText(document.getElementById('proposalContent').innerText)
+    .then(()=>alert('Copied to clipboard!'));
+}
+function printProposal(){
+  const html=document.getElementById('proposalContent').innerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>SORIGIN Proposal</title><style>
+    body{font-family:Arial,sans-serif;padding:40px;color:#1c2b36;line-height:1.75;font-size:13px}
+    h1{color:#2a8a38;font-size:20px;text-align:center;border-bottom:2px solid #3dba4e;padding-bottom:10px;margin-bottom:18px}
+    h2{color:#2a8a38;font-size:13px;font-weight:700;background:#e8f7ea;padding:7px 12px;border-left:4px solid #3dba4e;border-radius:0 5px 5px 0;margin:20px 0 10px;text-transform:uppercase}
+    table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+    th{background:#3dba4e;color:white;padding:7px 10px;text-align:left}
+    td{padding:6px 10px;border-bottom:1px solid #dde3ea;vertical-align:top}
+    tr:nth-child(even) td{background:#f4f6f8}
+    p{margin:6px 0}ul{padding-left:18px;margin:7px 0}li{margin:3px 0}
+    .highlight-box{background:#fff8e1;border:1px solid #f0c040;border-radius:6px;padding:12px 16px;margin:12px 0}
+  </style></head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+buildBillTable();
+calcSizing(false);
 </script>
 </body>
 </html>
