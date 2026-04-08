@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SORIGIN — Solar Proposal Generator</title>
+<style>
+  :root {
+    --green:#3dba4e;--dark-green:#2a8a38;--light-green:#e8f7ea;
+    --blue:#1a6bbf;--gray:#f4f6f8;--border:#dde3ea;
+    --text:#1c2b36;--muted:#6b7a8a;--white:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#f0f4f7;color:var(--text);min-height:100vh}
+  .header{background:var(--white);border-bottom:3px solid var(--green);padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
+  .logo span:first-child{color:var(--dark-green)}
+  .logo span:last-child{color:var(--green)}
+  .header-sub{color:var(--muted);font-size:12px;margin-left:8px;border-left:2px solid var(--border);padding-left:12px}
+  .container{max-width:920px;margin:28px auto;padding:0 14px}
+  .card{background:var(--white);border-radius:10px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden}
+  .card-header{background:var(--green);color:white;padding:11px 18px;display:flex;align-items:center;gap:9px}
+  .card-header h3{font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .step-badge{background:rgba(255,255,255,.25);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .card-body{padding:18px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid.three{grid-template-columns:1fr 1fr 1fr}
+  .form-group{display:flex;flex-direction:column;gap:4px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  input,select,textarea{border:1.5px solid var(--border);border-radius:6px;padding:8px 11px;font-size:13px;font-family:Arial,sans-serif;transition:border-color .2s;outline:none;width:100%}
+  input:focus,select:focus,textarea:focus{border-color:var(--green)}
+  .ai-field{background:var(--light-green)!important;color:var(--dark-green)!important;font-weight:700!important;border-color:#b2ddb8!important;cursor:default}
+  .bill-table{width:100%;border-collapse:collapse;font-size:13px}
+  .bill-table th{background:var(--gray);padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+  .bill-table td{padding:5px 8px;border-bottom:1px solid var(--border)}
+  .bill-table input{border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:13px}
+  .calc-bar{display:flex;align-items:center;gap:10px;background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:10px 14px;margin:14px 0 4px}
+  .calc-bar span{font-size:12px;color:#7a5c00;flex:1}
+  .btn-calc{background:var(--dark-green);color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .btn-calc:hover{background:#1f6a2a}
+  .calc-flash{animation:flashGreen .6s ease}
+  @keyframes flashGreen{0%,100%{background:var(--light-green)}50%{background:#b6f2c0}}
+  .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  .summary-box{background:var(--light-green);border:1px solid #b2ddb8;border-radius:8px;padding:11px;text-align:center}
+  .summary-box .val{font-size:18px;font-weight:800;color:var(--dark-green)}
+  .summary-box .lbl{font-size:10px;color:var(--muted);margin-top:2px}
+  .btn-generate{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;margin-top:6px}
+  .btn-generate:hover{background:var(--dark-green)}
+  .btn-generate:disabled{background:#aaa;cursor:not-allowed}
+  .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #output-section{display:none;margin-top:4px}
+  .proposal-wrap{background:var(--white);border-radius:10px;border:2px solid var(--green);padding:30px;font-size:13.5px;line-height:1.75}
+  .proposal-wrap h1{color:var(--dark-green);font-size:20px;border-bottom:2px solid var(--green);padding-bottom:10px;margin-bottom:18px;text-align:center}
+  .proposal-wrap h2{color:var(--dark-green);font-size:13px;font-weight:700;background:var(--light-green);padding:7px 12px;border-left:4px solid var(--green);border-radius:0 6px 6px 0;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.5px}
+  .proposal-wrap table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  .proposal-wrap th{background:var(--green);color:white;padding:8px 11px;text-align:left}
+  .proposal-wrap td{padding:7px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+  .proposal-wrap tr:nth-child(even) td{background:var(--gray)}
+  .proposal-wrap p{margin:7px 0}
+  .proposal-wrap ul,.proposal-wrap ol{padding-left:18px;margin:7px 0}
+  .proposal-wrap li{margin:3px 0}
+  .highlight-box{background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:14px 18px;margin:14px 0}
+  .proposal-footer{margin-top:24px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap}
+  .btn-action{background:var(--blue);color:white;border:none;border-radius:7px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer}
+  .btn-action:hover{background:#145499}
+  .btn-action.green{background:var(--dark-green)}
+  .btn-action.green:hover{background:#1f6a2a}
+  @media(max-width:600px){.form-grid,.form-grid.three,.summary-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><span>SOR</span><span>IGIN</span></div>
+  <div class="header-sub">AI Solar Proposal Generator &middot; EPC Techno-Commercial &middot; SRESPL</div>
+</div>
+<div class="container">
+
+<!-- STEP 1 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">1</div><h3>Client &amp; Proposal Details</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Client / Owner Name</label><input type="text" id="clientName" placeholder="e.g. Thermax Limited"/></div>
+      <div class="form-group"><label>Contact Name</label><input type="text" id="contactName" placeholder="e.g. Mr. Rajesh Kumar"/></div>
+      <div class="form-group"><label>Proposal Number</label><input type="text" id="proposalNo" placeholder="SRESPL / 26 / S / MH / 001"/></div>
+      <div class="form-group"><label>Proposal Date</label><input type="text" id="proposalDate" value="07 April 2026"/></div>
+      <div class="form-group"><label>Validity Date</label><input type="text" id="validityDate" value="14 April 2026"/></div>
+      <div class="form-group"><label>Prepared By</label><input type="text" id="preparedBy" placeholder="Your Name"/></div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">2</div><h3>Site Details</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Village / Taluka</label><input type="text" id="village" value="Ratanjan / Ladole"/></div>
+      <div class="form-group"><label>District</label><input type="text" id="district" value="Solapur"/></div>
+      <div class="form-group"><label>State</label><input type="text" id="state" value="Maharashtra"/></div>
+      <div class="form-group"><label>GPS Coordinates</label><input type="text" id="coords" value="18°3'52.83&quot;N, 75°46'49.01&quot;E"/></div>
+      <div class="form-group"><label>Total Area (Acres)</label><input type="text" id="area" value="~250 Acres"/></div>
+      <div class="form-group"><label>Land Type</label><input type="text" id="landType" value="Private"/></div>
+      <div class="form-group"><label>Land Profile</label><input type="text" id="landProfile" value="Flat"/></div>
+      <div class="form-group"><label>Land Model</label>
+        <select id="landModel"><option>Outright Sale</option><option>Lease</option><option>License</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">3</div><h3>Electricity Bills &amp; Capacity Sizing</h3></div>
+  <div class="card-body">
+    <table class="bill-table">
+      <thead><tr><th>Month</th><th>Units (kWh)</th><th>Tariff (&#8377;/kWh)</th><th>Total Bill (&#8377;)</th></tr></thead>
+      <tbody id="billTableBody"></tbody>
+    </table>
+    <div class="calc-bar">
+      <span>&#9889; Edit any bill value above, then click <strong>Recalculate</strong> to update DC/AC capacity instantly.</span>
+      <button class="btn-calc" onclick="calcSizing(true)">&#x1F504; Recalculate</button>
+    </div>
+    <div class="summary-row">
+      <div class="summary-box"><div class="val" id="sum-annual">&#8212;</div><div class="lbl">Annual kWh</div></div>
+      <div class="summary-box"><div class="val" id="sum-tariff">&#8212;</div><div class="lbl">Avg &#8377;/kWh</div></div>
+      <div class="summary-box"><div class="val" id="sum-dc">&#8212;</div><div class="lbl">Rec. DC MWp</div></div>
+      <div class="summary-box"><div class="val" id="sum-bill">&#8212;</div><div class="lbl">Annual Bill (&#8377; L)</div></div>
+    </div>
+    <div style="margin-top:18px">
+      <div class="form-grid three">
+        <div class="form-group"><label>DC Capacity (MWp) &#10022; AI</label><input type="text" id="dcMwp" class="ai-field" readonly/></div>
+        <div class="form-group"><label>AC Capacity (MW) &#10022; AI</label><input type="text" id="acMw" class="ai-field" readonly/></div>
+        <div class="form-group"><label>Annual Generation &#10022; AI</label><input type="text" id="annualGen" class="ai-field" readonly/></div>
+        <div class="form-group"><label>Tariff Category</label><input type="text" id="tariffCat" value="Industrial HT"/></div>
+        <div class="form-group"><label>DISCOM / Utility</label><input type="text" id="discom" value="MSEDCL"/></div>
+        <div class="form-group"><label>Business Model</label>
+          <select id="bizModel"><option>EPC (Turnkey)</option><option>OPEX / PPA</option><option>CAPEX + OMS</option></select>
+        </div>
+        <div class="form-group"><label>Module Technology</label>
+          <select id="modTech"><option>TopCon Mono</option><option>Mono PERC</option><option>Bifacial TopCon</option></select>
+        </div>
+        <div class="form-group"><label>Inverter Type</label>
+          <select id="invType"><option>String Inverter</option><option>Central Inverter</option><option>Micro Inverter</option></select>
+        </div>
+        <div class="form-group"><label>BESS Required?</label>
+          <select id="bessReq"><option>No</option><option>Yes</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">4</div><h3>Power Evacuation</h3></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group"><label>Nearest Substation</label><input type="text" id="substation" value="220/132 kV Vairag Substation"/></div>
+      <div class="form-group"><label>Connectivity Voltage (kV)</label><input type="text" id="connVoltage" value="33 kV"/></div>
+      <div class="form-group"><label>Aerial Distance to SS</label><input type="text" id="ssDist" value="~5.6 km"/></div>
+      <div class="form-group"><label>Substation Owner</label><input type="text" id="ssOwner" value="MSETCL"/></div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">5</div><h3>Commercial Terms</h3></div>
+  <div class="card-body">
+    <div class="form-grid three">
+      <div class="form-group"><label>EPC Rate (&#8377; Lakhs/MWp)</label><input type="number" id="epcRate" value="330"/></div>
+      <div class="form-group"><label>Total EPC Cost &#10022; AI</label><input type="text" id="epcTotal" class="ai-field" readonly/></div>
+      <div class="form-group"><label>Execution Timeline</label><input type="text" id="timeline" value="6&#8211;8 months from NTP"/></div>
+      <div class="form-group"><label>OMS Rate (&#8377; Lakhs/MWp/yr)</label><input type="number" id="omsRate" value="5"/></div>
+      <div class="form-group"><label>Annual OMS Cost &#10022; AI</label><input type="text" id="omsTotal" class="ai-field" readonly/></div>
+      <div class="form-group"><label>OMS Escalation (%&nbsp;p.a.)</label><input type="text" id="omsEsc" value="5%"/></div>
+      <div class="form-group"><label>Annual Savings (&#8377; L) &#10022; AI</label><input type="text" id="annualSavings" class="ai-field" readonly/></div>
+      <div class="form-group"><label>Simple Payback (yrs) &#10022; AI</label><input type="text" id="payback" class="ai-field" readonly/></div>
+      <div class="form-group"><label>25-yr Savings (&#8377; Cr) &#10022; AI</label><input type="text" id="lifetimeSavings" class="ai-field" readonly/></div>
+    </div>
+    <div class="calc-bar" style="margin-top:14px">
+      <span>&#9889; Change EPC or OMS rate above, then click <strong>Recalculate</strong> to update all commercial figures.</span>
+      <button class="btn-calc" onclick="calcCommercial(true)">&#x1F504; Recalculate</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="card">
+  <div class="card-header"><div class="step-badge">6</div><h3>Scope Notes (optional)</h3></div>
+  <div class="card-body">
+    <div class="form-group">
+      <label>Sub-project split / Special conditions / Client requests</label>
+      <textarea id="scopeNotes" rows="3" placeholder="e.g. Two sub-projects of 8.7 MW and 19.5 MW. Any special client requirements..."></textarea>
+    </div>
+  </div>
+</div>
+
+<button class="btn-generate" id="generateBtn" onclick="generateProposal()">
+  <span>&#9889;</span> Generate Techno-Commercial Proposal
+</button>
+
+<div id="output-section">
+  <div class="card" style="margin-top:14px">
+    <div class="card-header" style="background:var(--dark-green)">
+      <h3>&#128196; SORIGIN RENEWABLES &#8212; Techno-Commercial Proposal</h3>
+    </div>
+    <div class="card-body">
+      <div class="proposal-wrap" id="proposalContent"></div>
+      <div class="proposal-footer">
+        <button class="btn-action green" onclick="copyProposal()">&#128203; Copy Text</button>
+        <button class="btn-action" onclick="printProposal()">&#128424; Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+<script>
+const MONTHS=['Apr 2025','May 2025','Jun 2025','Jul 2025','Aug 2025','Sep 2025','Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026'];
+const DEF_U=[88200,91350,79420,76880,83910,81300,87540,74980,78640,82540,74210,93880];
+const DEF_T=[8.10,8.15,8.05,8.00,8.10,8.20,8.25,8.10,8.15,8.20,8.15,8.35];
+const DEF_B=[955777,994122,863636,834946,912918,899326,965757,824512,865962,910400,823632,1042731];
+const GHI=1912.2,PR=0.78,DC_AC=1.4;
+
+function buildBillTable(){
+  const tb=document.getElementById('billTableBody');
+  MONTHS.forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong>${m}</strong></td>
+      <td><input type="number" id="u${i}" value="${DEF_U[i]}"/></td>
+      <td><input type="number" id="t${i}" value="${DEF_T[i]}" step="0.01"/></td>
+      <td><input type="number" id="b${i}" value="${DEF_B[i]}"/></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function getBillTotals(){
+  let kWh=0,bill=0,tariff=0;
+  for(let i=0;i<12;i++){
+    kWh  +=parseFloat(document.getElementById('u'+i).value)||0;
+    bill +=parseFloat(document.getElementById('b'+i).value)||0;
+    tariff+=parseFloat(document.getElementById('t'+i).value)||0;
+  }
+  return{kWh,bill,avgTariff:tariff/12};
+}
+
+function calcSizing(flash){
+  const{kWh,bill,avgTariff}=getBillTotals();
+  const dcMwp=kWh/(GHI*PR*1000);
+  const acMw=dcMwp/DC_AC;
+  const gen=dcMwp*GHI*PR*1000;
+  document.getElementById('sum-annual').textContent=(kWh/1000).toFixed(1)+' MWh';
+  document.getElementById('sum-tariff').textContent='₹'+avgTariff.toFixed(2);
+  document.getElementById('sum-dc').textContent=dcMwp.toFixed(3)+' MWp';
+  document.getElementById('sum-bill').textContent='₹'+(bill/100000).toFixed(2)+' L';
+  setAI('dcMwp',dcMwp.toFixed(3),flash);
+  setAI('acMw',acMw.toFixed(3),flash);
+  setAI('annualGen',(gen/1000).toFixed(1)+' MWh/yr',flash);
+  calcCommercial(flash);
+}
+
+function calcCommercial(flash){
+  const dcMwp=parseFloat(document.getElementById('dcMwp').value)||0;
+  const epcRate=parseFloat(document.getElementById('epcRate').value)||0;
+  const omsRate=parseFloat(document.getElementById('omsRate').value)||0;
+  const epcTotal=dcMwp*epcRate;
+  const omsAnnual=dcMwp*omsRate;
+  const{kWh,bill,avgTariff}=getBillTotals();
+  const gen=dcMwp*GHI*PR*1000;
+  const covered=Math.min(gen,kWh);
+  const annSav=(covered*avgTariff)/100000;
+  const payback=annSav>0?epcTotal/annSav:0;
+  let life=0,s=annSav;
+  for(let y=0;y<25;y++){life+=s;s*=1.05;}
+  setAI('epcTotal','INR '+epcTotal.toFixed(2)+' Lakhs',flash);
+  setAI('omsTotal','INR '+omsAnnual.toFixed(2)+' Lakhs/yr',flash);
+  setAI('annualSavings','₹ '+annSav.toFixed(2)+' Lakhs/yr',flash);
+  setAI('payback',payback>0?payback.toFixed(1)+' yrs':'—',flash);
+  setAI('lifetimeSavings','₹ '+(life/100).toFixed(2)+' Cr',flash);
+}
+
+function setAI(id,val,flash){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.value=val;
+  if(flash){el.classList.remove('calc-flash');void el.offsetWidth;el.classList.add('calc-flash');}
+}
+
+function g(id){return(document.getElementById(id)||{}).value||'';}
+
+function gatherInputs(){
+  let bills='',totKwh=0,totBill=0,totTariff=0;
+  for(let i=0;i<12;i++){
+    const u=parseFloat(document.getElementById('u'+i).value)||0;
+    const t=parseFloat(document.getElementById('t'+i).value)||0;
+    const b=parseFloat(document.getElementById('b'+i).value)||0;
+    totKwh+=u;totBill+=b;totTariff+=t;
+    bills+=MONTHS[i]+': '+u+' kWh @ ₹'+t+'/kWh = ₹'+Math.round(b).toLocaleString('en-IN')+'\n';
+  }
+  return{
+    clientName:g('clientName')||'Client',contactName:g('contactName')||'—',
+    proposalNo:g('proposalNo')||'SRESPL/26/S/MH/001',proposalDate:g('proposalDate'),
+    validityDate:g('validityDate'),preparedBy:g('preparedBy')||'Sorigin BD Team',
+    village:g('village'),district:g('district'),state:g('state'),coords:g('coords'),
+    area:g('area'),landType:g('landType'),landProfile:g('landProfile'),landModel:g('landModel'),
+    dcMwp:g('dcMwp'),acMw:g('acMw'),annualGen:g('annualGen'),
+    bizModel:g('bizModel'),tariffCat:g('tariffCat'),discom:g('discom'),
+    modTech:g('modTech'),invType:g('invType'),bessReq:g('bessReq'),
+    substation:g('substation'),connVoltage:g('connVoltage'),ssDist:g('ssDist'),ssOwner:g('ssOwner'),
+    epcRate:g('epcRate'),epcTotal:g('epcTotal'),timeline:g('timeline'),
+    omsRate:g('omsRate'),omsTotal:g('omsTotal'),omsEsc:g('omsEsc'),
+    annualSavings:g('annualSavings'),payback:g('payback'),lifetimeSavings:g('lifetimeSavings'),
+    scopeNotes:g('scopeNotes'),bills,
+    totalKwh:(totKwh/1000).toFixed(1)+' MWh',
+    totalBill:(totBill/100000).toFixed(2),
+    avgTariff:(totTariff/12).toFixed(2)
+  };
+}
+
+function buildSampleProposal(d){
+  const dcN=parseFloat(d.dcMwp)||0.68;
+  const modules=Math.ceil(dcN*1000/0.580);
+  const invCount=Math.ceil(dcN*1000/100);
+  const milestones=[
+    [1,'Advance',10,'Contract Signing & BG submission'],
+    [2,'Power Evacuation',5,'DISCOM application submitted'],
+    [3,'Design Approval',5,'Drawings approved by Client'],
+    [4,'Land Development',10,'Site levelling & civil work commenced'],
+    [5,'Module Supply',45,'Module delivery at site'],
+    [6,'Inverter Supply',5,'Inverter delivery at site'],
+    [7,'MMS / Structure',5,'Structure erection & module mounting'],
+    [8,'Electrical Completion',10,'HT/LT cabling, switchgear, metering done'],
+    [9,'COD / Handover',5,'Commissioning, grid sync & perf. test passed']
+  ];
+  const epcN=parseFloat(d.epcTotal.replace(/[^0-9.]/g,''))||0;
+  const milRows=milestones.map(([n,name,pct,trigger])=>{
+    const amt=epcN>0?'₹ '+(epcN*pct/100).toFixed(2)+' L':'—';
+    return`<tr><td>${n}</td><td>${name}</td><td>${pct}%</td><td>${amt}</td><td>${trigger}</td></tr>`;
+  }).join('');
+  const billRows=MONTHS.map((m,i)=>{
+    const u=document.getElementById('u'+i)?.value||DEF_U[i];
+    const t=document.getElementById('t'+i)?.value||DEF_T[i];
+    const b=document.getElementById('b'+i)?.value||DEF_B[i];
+    return`<tr><td>${m}</td><td>${parseInt(u).toLocaleString('en-IN')}</td><td>₹${parseFloat(t).toFixed(2)}</td><td>₹ ${parseInt(b).toLocaleString('en-IN')}</td></tr>`;
+  }).join('');
+  return`
+<h1>TECHNO-COMMERCIAL PROPOSAL<br><small style="font-size:13px;font-weight:400">Grid-Connected Solar Power Plant</small></h1>
+<table><tr><td width="45%"><strong>Proposal No.</strong></td><td>${d.proposalNo}</td></tr>
+<tr><td><strong>Date</strong></td><td>${d.proposalDate}</td></tr>
+<tr><td><strong>Valid Until</strong></td><td>${d.validityDate}</td></tr>
+<tr><td><strong>Prepared For</strong></td><td>${d.clientName}</td></tr>
+<tr><td><strong>Attn.</strong></td><td>${d.contactName}</td></tr>
+<tr><td><strong>Prepared By</strong></td><td>${d.preparedBy} — Sorigin Renewables EPC Pvt. Ltd.</td></tr></table>
+
+<h2>Section 1 — Executive Summary</h2>
+<p>Sorigin Renewables EPC Pvt. Ltd. (SRESPL) is pleased to submit this Techno-Commercial Proposal to <strong>${d.clientName}</strong> for a <strong>${d.dcMwp} MWp DC / ${d.acMw} MW AC</strong> grid-connected solar power plant at ${d.village}, ${d.district}, ${d.state}, under the <strong>${d.bizModel}</strong> model.</p>
+<p>The system has been sized based on a 12-month electricity bill analysis. The client's annual consumption stands at <strong>${d.totalKwh}</strong> at an average tariff of <strong>₹${d.avgTariff}/kWh</strong>, resulting in an annual electricity bill of approximately <strong>₹${d.totalBill} Lakhs</strong>. The proposed solar plant will generate <strong>${d.annualGen}</strong> and offset the majority of this consumption, delivering significant savings from Day 1.</p>
+<div class="highlight-box">
+<strong>&#128202; Financial Highlights</strong>
+<table style="margin-top:10px">
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Annual Electricity Bill (Current)</td><td>₹ ${d.totalBill} Lakhs</td></tr>
+<tr><td>Estimated Annual Solar Savings</td><td>${d.annualSavings}</td></tr>
+<tr><td>Total Project Cost (EPC, excl. GST)</td><td>${d.epcTotal}</td></tr>
+<tr><td>Simple Payback Period</td><td>${d.payback}</td></tr>
+<tr><td>25-Year Lifetime Savings (5% tariff escalation)</td><td>${d.lifetimeSavings}</td></tr>
+</table></div>
+
+<h2>Section 2 — Site Details</h2>
+<table><tr><th>Sr.</th><th>Particulars</th><th>Description</th></tr>
+<tr><td>1</td><td>Location</td><td>${d.village}, ${d.district}, ${d.state}</td></tr>
+<tr><td>2</td><td>GPS Coordinates</td><td>${d.coords}</td></tr>
+<tr><td>3</td><td>Total Area Available</td><td>${d.area}</td></tr>
+<tr><td>4</td><td>Land Type</td><td>${d.landType}</td></tr>
+<tr><td>5</td><td>Land Profile</td><td>${d.landProfile}</td></tr>
+<tr><td>6</td><td>Land Model</td><td>${d.landModel}</td></tr>
+<tr><td>7</td><td>Annual GHI (Solar Irradiance)</td><td>${GHI} kWh/m²/year</td></tr>
+<tr><td>8</td><td>DISCOM / Utility</td><td>${d.discom}</td></tr>
+<tr><td>9</td><td>Tariff Category</td><td>${d.tariffCat}</td></tr></table>
+
+<h2>Section 3 — Electricity Bill Analysis (12 Months)</h2>
+<table><tr><th>Month</th><th>Units (kWh)</th><th>Tariff (₹/kWh)</th><th>Bill Amount (₹)</th></tr>
+${billRows}
+<tr style="font-weight:700;background:#e8f7ea"><td><strong>TOTAL / AVG</strong></td><td><strong>${d.totalKwh}</strong></td><td><strong>₹${d.avgTariff} avg</strong></td><td><strong>₹ ${d.totalBill} Lakhs</strong></td></tr></table>
+
+<h2>Section 4 — Project Configuration</h2>
+<table><tr><th>Sr.</th><th>Parameter</th><th>Specification</th></tr>
+<tr><td>1</td><td>DC Capacity</td><td><strong>${d.dcMwp} MWp</strong></td></tr>
+<tr><td>2</td><td>AC Capacity</td><td><strong>${d.acMw} MW</strong></td></tr>
+<tr><td>3</td><td>DC/AC Ratio</td><td>1.40</td></tr>
+<tr><td>4</td><td>Module Technology</td><td>${d.modTech}, 580 Wp+, ≥21.5% efficiency, Tier-1</td></tr>
+<tr><td>5</td><td>Approximate Module Count</td><td>${modules.toLocaleString('en-IN')} Nos.</td></tr>
+<tr><td>6</td><td>Inverter Type</td><td>${d.invType}, IP65, Grid-forming, Anti-islanding</td></tr>
+<tr><td>7</td><td>Approx. Inverter Count</td><td>${invCount} × 100 kW Nos.</td></tr>
+<tr><td>8</td><td>Mounting System</td><td>Fixed-Tilt GMS/MMS, Hot-Dip Galvanized 140 micron</td></tr>
+<tr><td>9</td><td>Annual P90 Energy Generation</td><td>${d.annualGen}</td></tr>
+<tr><td>10</td><td>Performance Ratio (PR)</td><td>${(PR*100).toFixed(0)}%</td></tr>
+<tr><td>11</td><td>Annual GHI</td><td>${GHI} kWh/m²/year</td></tr>
+<tr><td>12</td><td>BESS</td><td>${d.bessReq==='Yes'?'Required — sizing TBD based on load profile':'Not Required at this stage'}</td></tr>
+<tr><td>13</td><td>Monitoring</td><td>Cloud-based SCADA, plant-level &amp; string-level, 24×7</td></tr>
+<tr><td>14</td><td>Business Model</td><td>${d.bizModel}</td></tr></table>
+
+<h2>Section 5 — Power Evacuation Arrangement</h2>
+<table><tr><th>Sr.</th><th>Particulars</th><th>Details</th></tr>
+<tr><td>1</td><td>Nearest Grid Substation</td><td>${d.substation}</td></tr>
+<tr><td>2</td><td>Connectivity Voltage Level</td><td>${d.connVoltage}</td></tr>
+<tr><td>3</td><td>Aerial Distance to Substation</td><td>${d.ssDist}</td></tr>
+<tr><td>4</td><td>Substation Owner / DISCOM</td><td>${d.ssOwner}</td></tr>
+<tr><td>5</td><td>Evacuation Scope</td><td>Included up to metering point at substation boundary</td></tr>
+<tr><td>6</td><td>Metering Arrangement</td><td>Bi-directional Net-metering / Gross-metering per DISCOM norms</td></tr></table>
+
+<h2>Section 6 — Execution Timeline</h2>
+<p>The project will be commissioned within <strong>${d.timeline}</strong> from the date of Notice to Proceed (NTP), subject to site readiness, DISCOM approvals, and timely payments.</p>
+<table><tr><th>Milestone</th><th>Timeline from NTP</th></tr>
+<tr><td>Contract Signing &amp; Advance</td><td>Week 0</td></tr>
+<tr><td>Design Submission &amp; DISCOM Application</td><td>Week 2–3</td></tr>
+<tr><td>Civil &amp; Foundation Work</td><td>Week 3–8</td></tr>
+<tr><td>MMS / Structure Supply &amp; Erection</td><td>Week 6–14</td></tr>
+<tr><td>Module Supply &amp; Installation</td><td>Week 8–18</td></tr>
+<tr><td>Inverter &amp; Electrical Installation</td><td>Week 12–22</td></tr>
+<tr><td>Testing, Commissioning &amp; Grid Sync</td><td>Week 22–26</td></tr>
+<tr><td>Project Handover / COD</td><td>Month 6–8</td></tr></table>
+
+<h2>Section 7 — Commercial Terms (EPC)</h2>
+<table><tr><th>Sr.</th><th>Description</th><th>Value</th></tr>
+<tr><td>1</td><td>DC Capacity</td><td>${d.dcMwp} MWp</td></tr>
+<tr><td>2</td><td>EPC Rate (Lump-Sum, All-Inclusive)</td><td>₹ ${d.epcRate} Lakhs / MWp</td></tr>
+<tr><td>3</td><td><strong>Total EPC Contract Value</strong></td><td><strong>${d.epcTotal}</strong></td></tr>
+<tr><td>4</td><td>GST (as applicable)</td><td>@ 12% on Supply; 18% on Services — charged extra</td></tr>
+<tr><td>5</td><td>Escalation</td><td>Nil — Fixed-Price EPC Contract</td></tr></table>
+<ul style="margin-top:10px">
+<li><strong>Note A:</strong> Prices are exclusive of GST; charged extra at prevailing rates.</li>
+<li><strong>Note B:</strong> New statutory levies introduced post-proposal date are to Client's account.</li>
+<li><strong>Note C:</strong> TDS applicable per Income Tax Act; certificates within 7 days of deduction.</li>
+<li><strong>Note D:</strong> Interest @ 15% p.a. on payments delayed beyond 7 working days of due date.</li>
+<li><strong>Note E:</strong> Proposal valid until <strong>${d.validityDate}</strong>; post-validity pricing subject to revision.</li>
+<li><strong>Note F:</strong> Pricing subject to revision if scope, site conditions, or specs change materially.</li>
+<li><strong>Note G:</strong> Module/inverter pricing linked to market rates; cost-pass-through above ±5% movement.</li>
+<li><strong>Note H:</strong> Indicative proposal; final pricing confirmed post detailed site survey &amp; load flow study.</li></ul>
+
+<h2>Section 8 — Payment Terms (EPC Milestones)</h2>
+<table><tr><th>No.</th><th>Milestone</th><th>%</th><th>Amount</th><th>Trigger Event</th></tr>
+${milRows}</table>
+
+<h2>Section 9 — O&amp;M Service (OMS) Terms</h2>
+<table><tr><th>Sr.</th><th>Description</th><th>Value</th></tr>
+<tr><td>1</td><td>OMS Capacity</td><td>${d.dcMwp} MWp</td></tr>
+<tr><td>2</td><td>OMS Rate</td><td>₹ ${d.omsRate} Lakhs / MWp / Year</td></tr>
+<tr><td>3</td><td><strong>Annual OMS Cost (Year 1)</strong></td><td><strong>${d.omsTotal}</strong></td></tr>
+<tr><td>4</td><td>Annual Escalation</td><td>${d.omsEsc} per annum, compounded</td></tr>
+<tr><td>5</td><td>Contract Period</td><td>5 years (renewable)</td></tr></table>
+<ul style="margin-top:10px">
+<li><strong>Note A:</strong> Scope includes preventive &amp; corrective maintenance, module cleaning, vegetation management, SCADA monitoring, and annual energy audit.</li>
+<li><strong>Note B:</strong> OMS commences from COD (Commercial Operation Date).</li>
+<li><strong>Note C:</strong> Spare parts consumed are chargeable extra at cost.</li>
+<li><strong>Note D:</strong> Uptime guarantee of 98% (excl. force majeure &amp; grid outages) on monthly basis.</li>
+<li><strong>Note E:</strong> Emergency response: 4 hours for critical faults; 24 hours for minor faults.</li>
+<li><strong>Note F:</strong> Penalty/bonus for generation deviation beyond ±5% of P90 — mutually agreed.</li>
+<li><strong>Note G:</strong> All prices exclusive of GST, charged extra at applicable rates.</li></ul>
+
+<h2>Section 10 — OMS Payment Terms</h2>
+<table><tr><th>Billing Cycle</th><th>Amount</th><th>Payment Due</th></tr>
+<tr><td>Quarterly advance billing</td><td>25% of Annual OMS Cost per quarter</td><td>Within 7 working days of invoice</td></tr>
+<tr><td>Late payment interest</td><td>15% p.a.</td><td>Applied after 7-day window</td></tr></table>
+
+<h2>Annexure A — EPC Scope Responsibility Matrix</h2>
+<table><tr><th>Sr.</th><th>Scope Item</th><th>SRESPL</th><th>Client</th></tr>
+${[['Land procurement &amp; registration','—','✔'],['Land development, levelling &amp; fencing','✔','—'],
+['Civil foundations','✔','—'],['Module supply &amp; installation','✔','—'],
+['Inverter supply &amp; installation','✔','—'],['Mounting structure supply &amp; erection','✔','—'],
+['DC cabling, earthing &amp; lightning protection','✔','—'],['AC cabling, LT &amp; HT switchgear','✔','—'],
+['Transformer / pooling substation','✔','—'],['SCADA / monitoring system','✔','—'],
+['Grid connectivity application (DISCOM liaison)','✔','Support'],
+['CEIG / Electrical Inspector approvals','✔','Support'],
+['Net-metering / MEDA registration','✔','Support'],
+['PPA (if OPEX)','—','✔'],['Construction All-Risk Insurance','✔','—']
+].map(([s,sr,cl],n)=>`<tr><td>${n+1}</td><td>${s}</td><td style="text-align:center">${sr}</td><td style="text-align:center">${cl}</td></tr>`).join('')}</table>
+
+<h2>Annexure B — Key Technical Specifications</h2>
+<table><tr><th>Component</th><th>Specification</th><th>Approved Makes</th></tr>
+<tr><td>Solar Module</td><td>${d.modTech}, 580 Wp+, ≥21.5% efficiency, Tier-1, IEC 61215</td><td>Waaree / Adani / Vikram / Renewsys</td></tr>
+<tr><td>Inverter</td><td>${d.invType}, IP65, Grid-forming, Anti-islanding, IEC 62116</td><td>Sungrow / ABB / SMA / Growatt</td></tr>
+<tr><td>Mounting Structure</td><td>Hot-dip galvanized GMS/MMS, 140 micron, wind 150 km/h</td><td>Bonfiglioli / Saatvik / Jakson</td></tr>
+<tr><td>DC Cables</td><td>1100V XLPE, UV-resistant, fire-retardant, IEC 62930</td><td>Polycab / KEI / Havells</td></tr>
+<tr><td>AC Cables</td><td>1100V / 33kV XLPE as applicable</td><td>Polycab / KEI / Sterlite</td></tr>
+<tr><td>Earthing &amp; LA</td><td>GI/Copper, IS 3043 compliant</td><td>Standard IS-approved makes</td></tr>
+<tr><td>SCADA / Monitoring</td><td>String-level + plant-level, cloud-based, 99.5% uptime SLA</td><td>Solis / Fronius / Custom</td></tr>
+<tr><td>Transformer (if applicable)</td><td>33/0.415 kV, ONAN, IS 2026 compliant</td><td>KVAR / CG / ABB / Voltamp</td></tr></table>
+
+<h2>Annexure C — Warranty Terms</h2>
+<table><tr><th>Item</th><th>Warranty Period</th><th>Coverage</th></tr>
+<tr><td>EPC Workmanship</td><td>12 Months from COD</td><td>All civil, electrical &amp; erection defects</td></tr>
+<tr><td>Solar Modules</td><td>25 Years linear power output</td><td>≥97.5% Yr 1; ≤0.55%/yr degradation; 12-yr product warranty</td></tr>
+<tr><td>Inverter</td><td>5 Years (manufacturer)</td><td>Parts &amp; labour; extendable to 10 yrs via AMC</td></tr>
+<tr><td>Mounting Structure</td><td>12 Years against corrosion</td><td>Hot-dip galvanisation integrity</td></tr>
+<tr><td>DC Cables</td><td>10 Years</td><td>UV resistance &amp; electrical insulation</td></tr></table>
+
+<p style="margin-top:24px;font-style:italic;color:#6b7a8a;font-size:12px">
+This proposal has been prepared by <strong>${d.preparedBy}</strong> on behalf of <strong>Sorigin Renewables EPC Pvt. Ltd.</strong> It is strictly confidential and valid until <strong>${d.validityDate}</strong>, after which pricing is subject to revision. This document does not constitute a binding contract — a formal LOI / Work Order and signed EPC Agreement shall govern. All figures are indicative pending final site survey.
+</p>
+<p style="font-size:11px;margin-top:6px;color:#6b7a8a">Sorigin Renewables EPC Pvt. Ltd. | Maharashtra, India | GST: [GSTIN] | CIN: [CIN]</p>`;
+}
+
+async function generateProposal(){
+  const d=gatherInputs();
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div> Generating...';
+  const out=document.getElementById('output-section');
+  out.style.display='block';
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  const div=document.getElementById('proposalContent');
+  div.innerHTML='<p style="color:var(--muted);padding:20px;text-align:center">&#9203; Building your proposal...</p>';
+
+  const prompt=`You are a solar EPC proposal writer for SORIGIN RENEWABLES (SRESPL). Write a complete Techno-Commercial Proposal in HTML only (h1,h2,table,tr,th,td,ul,li,p,strong — no markdown, no backtick fences).
+CLIENT: ${d.clientName} | ${d.contactName} | ${d.proposalNo} | ${d.proposalDate} | Valid: ${d.validityDate}
+SITE: ${d.village}, ${d.district}, ${d.state} | ${d.coords} | ${d.area} | ${d.landType}, ${d.landProfile}, ${d.landModel}
+BILLS: ${d.bills}
+SIZING: DC ${d.dcMwp} MWp | AC ${d.acMw} MW | Gen: ${d.annualGen} | Tariff cat: ${d.tariffCat} | DISCOM: ${d.discom}
+TECH: ${d.modTech} | ${d.invType} | BESS: ${d.bessReq} | Model: ${d.bizModel}
+EVACUATION: ${d.substation} | ${d.connVoltage} | ${d.ssDist} | ${d.ssOwner}
+COMMERCIAL: EPC ₹${d.epcRate} L/MWp = ${d.epcTotal} | OMS ₹${d.omsRate} L/MWp/yr = ${d.omsTotal} | Esc: ${d.omsEsc} | Savings: ${d.annualSavings} | Payback: ${d.payback} | 25yr: ${d.lifetimeSavings}`;
+
+  let usedAPI=false;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,stream:true,
+        messages:[{role:'user',content:prompt}]})
+    });
+    if(resp.ok){
+      const reader=resp.body.getReader(),dec=new TextDecoder();
+      let full='';div.innerHTML='';
+      while(true){
+        const{done,value}=await reader.read();if(done)break;
+        dec.decode(value).split('\n').forEach(line=>{
+          if(line.startsWith('data: ')){
+            try{const data=JSON.parse(line.slice(6));
+              if(data.type==='content_block_delta'&&data.delta?.text){
+                full+=data.delta.text;div.innerHTML=full;
+              }
+            }catch(e){}
+          }
+        });
+      }
+      if(full.trim().length>200)usedAPI=true;
+    }
+  }catch(e){}
+
+  if(!usedAPI) div.innerHTML=buildSampleProposal(d);
+  btn.disabled=false;
+  btn.innerHTML='<span>&#9889;</span> Regenerate Proposal';
+  document.getElementById('output-section').scrollIntoView({behavior:'smooth'});
+}
+
+function copyProposal(){
+  navigator.clipboard.writeText(document.getElementById('proposalContent').innerText)
+    .then(()=>alert('Copied to clipboard!'));
+}
+function printProposal(){
+  const html=document.getElementById('proposalContent').innerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>SORIGIN Proposal</title><style>
+    body{font-family:Arial,sans-serif;padding:40px;color:#1c2b36;line-height:1.75;font-size:13px}
+    h1{color:#2a8a38;font-size:20px;text-align:center;border-bottom:2px solid #3dba4e;padding-bottom:10px;margin-bottom:18px}
+    h2{color:#2a8a38;font-size:13px;font-weight:700;background:#e8f7ea;padding:7px 12px;border-left:4px solid #3dba4e;border-radius:0 5px 5px 0;margin:20px 0 10px;text-transform:uppercase}
+    table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+    th{background:#3dba4e;color:white;padding:7px 10px;text-align:left}
+    td{padding:6px 10px;border-bottom:1px solid #dde3ea;vertical-align:top}
+    tr:nth-child(even) td{background:#f4f6f8}
+    p{margin:6px 0}ul{padding-left:18px;margin:7px 0}li{margin:3px 0}
+    .highlight-box{background:#fff8e1;border:1px solid #f0c040;border-radius:6px;padding:12px 16px;margin:12px 0}
+  </style></head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+buildBillTable();
+calcSizing(false);
+</script>
+</body>
+</html>
