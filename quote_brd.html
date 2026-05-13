@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Re-Votex — Business Requirements Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Serif:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --bg-elev: #ffffff;
+    --bg-sunken: #f3f3ef;
+    --bg-rail: #f6f6f1;
+    --ink: #0f1815;
+    --ink-2: #2a3531;
+    --ink-3: #5b6661;
+    --ink-4: #8a948f;
+    --ink-5: #b8beba;
+    --line: #e6e5dd;
+    --line-2: #efeee7;
+    --line-strong: #d4d3c9;
+    --green: oklch(0.62 0.14 152);
+    --green-2: oklch(0.55 0.15 152);
+    --green-soft: oklch(0.94 0.05 152);
+    --green-tint: oklch(0.97 0.025 152);
+    --green-ink: oklch(0.32 0.08 152);
+    --sand: #ede7d3;
+    --sand-2: #f6f2e4;
+    --amber: oklch(0.78 0.13 78);
+    --amber-soft: oklch(0.95 0.04 78);
+    --amber-ink: oklch(0.42 0.10 78);
+    --danger: oklch(0.58 0.18 25);
+    --danger-soft: oklch(0.95 0.04 25);
+    --danger-ink: oklch(0.38 0.12 25);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 0 rgba(15,24,21,.04), 0 1px 2px rgba(15,24,21,.04);
+    --shadow-md: 0 1px 0 rgba(15,24,21,.04), 0 4px 12px rgba(15,24,21,.06);
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-doc: 'IBM Plex Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-ui); background: var(--bg); color: var(--ink); line-height: 1.55; font-size: 14px; -webkit-font-smoothing: antialiased; }
+  code, pre { font-family: var(--font-mono); font-size: 0.88em; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; border: 2px solid var(--bg); }
+
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+  .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 28px 22px; border-right: 1px solid var(--line); background: var(--bg-rail); }
+  .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+  .brand-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--green); display: grid; place-items: center; color: white; font-weight: 700; font-size: 12px; }
+  .brand-name { font-weight: 600; font-size: 15px; }
+  .sidebar-title { font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+  .sidebar-subtitle { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 22px; line-height: 1.3; }
+  .toc-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-4); margin: 22px 0 8px; padding: 0 2px; }
+  .toc { list-style: none; border-left: 1px solid var(--line); }
+  .toc a { display: block; padding: 6px 12px; margin-left: -1px; border-left: 2px solid transparent; color: var(--ink-3); text-decoration: none; font-size: 13px; transition: all .15s; }
+  .toc a:hover { color: var(--green-ink); border-left-color: var(--green); background: var(--green-tint); }
+
+  .main { padding: 44px 60px 96px; max-width: 920px; }
+
+  .cover { padding: 32px 0 28px; border-bottom: 1px solid var(--line); margin-bottom: 44px; }
+  .cover .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-ink); margin-bottom: 8px; }
+  h1 { font-family: var(--font-doc); font-size: 38px; line-height: 1.1; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 12px; }
+  .cover .subhead { font-size: 17px; color: var(--ink-3); line-height: 1.45; max-width: 640px; }
+  .cover-meta { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 20px; font-size: 12.5px; color: var(--ink-3); }
+  .cover-meta strong { color: var(--ink-2); font-weight: 600; }
+  .status-banner { margin-top: 22px; padding: 14px 18px; background: var(--sand-2); border: 1px solid var(--sand); border-left: 3px solid var(--amber); border-radius: var(--radius-sm); font-size: 13.5px; color: var(--ink-2); }
+  .status-banner strong { color: var(--ink); }
+
+  section { margin-bottom: 56px; }
+  h2 { font-family: var(--font-doc); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; padding-top: 12px; }
+  .section-num { color: var(--green); margin-right: 10px; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .section-lede { font-size: 14px; color: var(--ink-3); margin-bottom: 22px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 12px; color: var(--ink); letter-spacing: -0.005em; }
+  h4 { font-size: 13px; font-weight: 600; margin: 16px 0 8px; color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase; }
+  p { margin-bottom: 12px; color: var(--ink-2); }
+  ul, ol { margin: 0 0 16px 22px; }
+  ul li, ol li { margin-bottom: 6px; color: var(--ink-2); }
+  strong { font-weight: 600; color: var(--ink); }
+  em { color: var(--ink-2); }
+  code:not(pre code) { background: var(--bg-sunken); padding: 1px 6px; border-radius: 3px; font-size: 0.86em; color: var(--green-ink); border: 1px solid var(--line); }
+  a { color: var(--green-ink); text-decoration: none; border-bottom: 1px dotted var(--green-soft); }
+  a:hover { border-bottom-style: solid; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; font-size: 13px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-sm); }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-rail); font-weight: 600; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-4); border-bottom: 1px solid var(--line); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--line-2); vertical-align: top; color: var(--ink-2); }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: var(--font-mono); font-size: 11.5px; }
+  td.center { text-align: center; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; border: 1px solid transparent; }
+  .badge-locked { background: var(--green-soft); color: var(--green-ink); }
+  .badge-pending { background: var(--sand-2); color: var(--amber-ink); border-color: var(--sand); }
+  .badge-info { background: var(--bg-sunken); color: var(--ink-3); border-color: var(--line); }
+  .badge-out { background: var(--danger-soft); color: var(--danger-ink); }
+
+  .callout { padding: 14px 18px; border-radius: var(--radius-sm); margin: 14px 0; font-size: 13.5px; }
+  .callout.good { background: var(--green-tint); border: 1px solid var(--green-soft); border-left: 3px solid var(--green); color: var(--ink-2); }
+  .callout.warn { background: var(--sand-2); border: 1px solid var(--sand); border-left: 3px solid var(--amber); color: var(--ink-2); }
+  .callout.info { background: var(--bg-rail); border: 1px solid var(--line); border-left: 3px solid var(--ink-4); color: var(--ink-2); }
+  .callout strong { color: var(--ink); }
+
+  .persona { padding: 18px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+  .persona-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .persona-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--green-soft); color: var(--green-ink); display: grid; place-items: center; font-weight: 600; font-size: 13px; font-family: var(--font-ui); }
+  .persona-title { font-weight: 600; color: var(--ink); font-size: 15px; }
+  .persona-role { font-size: 12px; color: var(--ink-4); }
+  .persona-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 10px; }
+  .persona-col h5 { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px; }
+  .persona-col p { font-size: 12.5px; color: var(--ink-2); margin: 0; line-height: 1.45; }
+
+  .mermaid-wrap { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+  .mermaid-caption { font-size: 12px; color: var(--ink-4); margin-bottom: 10px; font-style: italic; }
+  .mermaid { font-family: var(--font-ui) !important; }
+
+  .brd-figure { margin: 12px 0 24px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .brd-figure img { display: block; width: 100%; height: auto; background: var(--bg-rail); filter: sepia(0.18) hue-rotate(118deg) saturate(1.2) brightness(1.02); }
+  .brd-figure figcaption { padding: 12px 16px; background: var(--bg-elev); border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .brd-figure figcaption strong { color: var(--ink); }
+
+  .screenshot-placeholder { padding: 0; margin: 12px 0 24px; background: var(--bg-elev); border: 2px dashed var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+  .screenshot-placeholder .ph-stage { height: 240px; background: linear-gradient(135deg, var(--bg-rail) 0%, var(--bg-sunken) 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--ink-4); }
+  .screenshot-placeholder .ph-stage svg { opacity: 0.5; }
+  .screenshot-placeholder .ph-pending { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-ink); background: var(--amber-soft); padding: 2px 9px; border-radius: 999px; }
+  .screenshot-placeholder .ph-caption { padding: 12px 16px; background: var(--bg-elev); border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); display: flex; gap: 10px; align-items: flex-start; }
+  .screenshot-placeholder .ph-caption strong { color: var(--ink); }
+
+  .user-story { padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: var(--radius-sm); margin-bottom: 10px; }
+  .user-story .as-a { font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 4px; }
+  .user-story .story { font-size: 14px; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+  .user-story .ac { font-size: 12.5px; color: var(--ink-3); }
+  .user-story .ac strong { color: var(--ink-2); }
+
+  .phase { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-elev); margin-bottom: 12px; }
+  .phase-current { border-color: var(--green); background: var(--green-tint); }
+  .phase-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px; }
+  .phase-current .phase-label { color: var(--green-ink); }
+  .phase-name { font-family: var(--font-doc); font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+  .phase-deliv { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+  .phase-deliv ul { margin: 6px 0 0 18px; }
+
+  .footer { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    .main { padding: 28px 20px 56px; }
+    h1 { font-size: 28px; }
+    .persona-body { grid-template-columns: 1fr; }
+  }
+  @media print {
+    .sidebar { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .main { padding: 0; max-width: none; }
+    .persona, .mermaid-wrap, table, .user-story, .phase { box-shadow: none; page-break-inside: avoid; }
+    .screenshot-placeholder { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div class="brand-name">Re-Votex</div>
+    </div>
+    <div class="sidebar-title">Business Requirements</div>
+    <div class="sidebar-subtitle">Re-Votex BRD<br><span style="color:var(--amber-ink);font-weight:500;font-size:13px;">v0.1 · draft</span></div>
+
+    <div class="toc-label">Contents</div>
+    <ul class="toc">
+      <li><a href="#exec">1. Executive summary</a></li>
+      <li><a href="#context">2. Business context</a></li>
+      <li><a href="#outcomes">3. Target outcomes</a></li>
+      <li><a href="#personas">4. Stakeholders &amp; personas</a></li>
+      <li><a href="#journey">5. End-to-end journey</a></li>
+      <li><a href="#lifecycle">6. Lead lifecycle</a></li>
+      <li><a href="#functional">7. Functional requirements</a></li>
+      <li><a href="#nonfunctional">8. Non-functional requirements</a></li>
+      <li><a href="#architecture">9. System architecture</a></li>
+      <li><a href="#editing">10. Proposal-editing flow</a></li>
+      <li><a href="#recost">11. Re-cost flow</a></li>
+      <li><a href="#auth">12. Auth flow</a></li>
+      <li><a href="#ui">13. UI surfaces</a></li>
+      <li><a href="#phasing">14. Phasing roadmap</a></li>
+      <li><a href="#risks">15. Risks &amp; assumptions</a></li>
+      <li><a href="#glossary">16. Glossary</a></li>
+      <li><a href="#changelog">17. Change log</a></li>
+    </ul>
+
+    <div class="toc-label">Status legend</div>
+    <p style="font-size:11.5px;color:var(--ink-3);line-height:1.7;">
+      <span class="badge badge-locked">Shipped</span> in production for M1<br>
+      <span class="badge badge-pending">Pending</span> next phase<br>
+      <span class="badge badge-out">Out</span> deferred / not us
+    </p>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============ COVER ============ -->
+    <header class="cover">
+      <div class="eyebrow">Business Requirements Document · v0.1</div>
+      <h1>Re-Votex</h1>
+      <p class="subhead">
+        An AI-augmented proposal and lead-workflow platform built for
+        <strong>Sorigin Renewable Energy Solutions Pvt Ltd</strong> — an Indian
+        EPC contractor delivering utility-scale solar projects today, with wind
+        and hybrid systems on the horizon.
+      </p>
+      <div class="cover-meta">
+        <span><strong>Owner</strong> Neel Shah · <a href="mailto:neel.shah@sorigin.co">neel.shah@sorigin.co</a></span>
+        <span><strong>Reviewer</strong> Dhara</span>
+        <span><strong>Last updated</strong> May 13, 2026</span>
+      </div>
+      <div class="status-banner">
+        <strong>Status — draft.</strong> Audience: internal team + external
+        stakeholders (board, prospective enterprise clients). Items in
+        <em>Shipped</em> are live in the M1 UI shell; items in <em>Pending</em>
+        are scoped but not yet built. Pending Dhara's review.
+      </div>
+    </header>
+
+    <!-- ============ §1 EXECUTIVE SUMMARY ============ -->
+    <section id="exec">
+      <h2><span class="section-num">1</span>Executive summary</h2>
+      <p>
+        Sorigin Renewable Energy Solutions Pvt Ltd (SRESPL) is an Indian
+        Engineering, Procurement, and Construction (<strong>EPC</strong>)
+        contractor working on solar power projects. The company's deals are
+        <strong>low-volume, high-ticket</strong> — each contract is worth
+        crores of rupees and takes weeks of effort to win. Every customer
+        matters.
+      </p>
+      <p>
+        Today, the path from a lead phone-call to a signed proposal is
+        scattered across Excel sheets, Email threads, a CRM
+        (<strong>Freshsales</strong>), and the team's heads. Proposals are
+        hand-typed in Word. Each renegotiation round means rebuilding the
+        whole document. Quotes <strong>expire in seven days</strong> — past
+        which prices for solar modules, currency rates, and steel may have
+        shifted — and re-costing is painful enough that some live opportunities
+        die quietly.
+      </p>
+      <p>
+        <strong>Re-Votex</strong> replaces that scatter with a focused tool.
+        It takes a lead in, runs the BD team through a guided question flow,
+        generates a pixel-faithful techno-commercial PDF that matches
+        Sorigin's reference proposal format, and lets the team refine the
+        document via natural-language chat (<em>"change the advance to 15%,
+        OMS for 5 years"</em>) — with every edit mapped to structured fields
+        that re-render deterministically. One click re-costs an expired
+        proposal against current price data.
+      </p>
+      <p>
+        This document covers the business case, the users, the workflow, the
+        technical architecture, the data model, the API contract, the UI
+        surfaces, and the phased delivery roadmap. The M1 UI shell is shipped
+        and on GitHub; the backend lands in M1.5; AI and PDF rendering land
+        in M2; additional verticals (wind, battery storage) land in M3+.
+      </p>
+    </section>
+
+    <!-- ============ §2 BUSINESS CONTEXT ============ -->
+    <section id="context">
+      <h2><span class="section-num">2</span>Business context</h2>
+      <p class="section-lede">The shape of Sorigin's sales pipeline today, where it leaks, and where Re-Votex earns its keep.</p>
+
+      <h3>The pipeline as it runs today</h3>
+      <ol>
+        <li><strong>Telecaller</strong> dials leads, captures intent in an Excel sheet and Freshsales.</li>
+        <li>Warm leads are <strong>handed off to a Business Development (BD)</strong> team member — virtually or in person — to build trust and qualify.</li>
+        <li>BD asks for documents: 12 months of electricity bills, land KYC, site photographs. These arrive over email, often lost in chat threads.</li>
+        <li>BD drafts the first proposal in Word, manually computing pricing in Excel.</li>
+        <li>Client negotiates — <em>"can advance be 15% instead of 20%?"</em>, <em>"add 5-year Operations &amp; Maintenance Services (OMS)"</em> — and the BD rebuilds the document round after round.</li>
+        <li>The quote expires after seven days; if the client is still warm, the BD must re-cost from scratch against today's prices.</li>
+        <li>Win — milestone-based payments begin. Lose — the file is filed and the lead is marked closed.</li>
+      </ol>
+
+      <div class="callout warn">
+        <strong>Where the pipeline leaks.</strong> Pipeline state lives in one
+        telecaller's head; if she's out, things stall. Proposal storage is
+        scattered across folders, Excel, and notes — there is no version
+        history. Negotiation churn eats days of BD time per week.
+        Quotes die at expiry because re-costing is too painful to do
+        quickly.
+      </div>
+
+      <h3>Where Re-Votex helps</h3>
+      <ol>
+        <li><strong>Cuts negotiation churn.</strong> Structured proposal data + deterministic PDF render → edits take seconds, not hours.</li>
+        <li><strong>One-click re-cost.</strong> Pricing-as-a-service: update module ₹/Wp, FX rate, MMS steel rate in one place → regenerate every affected proposal.</li>
+        <li><strong>Pipeline state in the system, not someone's head.</strong> Activity sidebar and the Watchdog Agent surface stale leads, expiring proposals, callbacks, and unassigned work.</li>
+        <li><strong>Proposal storage is inherent.</strong> Every proposal is a typed document in MongoDB with version history — no more scavenger hunts in folders.</li>
+      </ol>
+
+      <p>
+        For the deeper sales-workflow walkthrough — customer archetypes,
+        Indian conventions, vendor and OEM landscape — see
+        <a href="business-context.md"><code>business-context.md</code></a>.
+        For the locked M1 scope and the success criteria the project is
+        held to, see
+        <a href="milestone-1.html"><code>milestone-1.html</code></a>.
+      </p>
+    </section>
+
+    <!-- ============ §3 TARGET OUTCOMES ============ -->
+    <section id="outcomes">
+      <h2><span class="section-num">3</span>Target outcomes</h2>
+      <p class="section-lede">The numbers that will tell us Re-Votex is working. Targets are M1 baselines from the milestone doc; M2+ refines as real data lands.</p>
+
+      <table>
+        <thead><tr><th style="width:30%;">Outcome</th><th>Target</th><th>Why this metric</th></tr></thead>
+        <tbody>
+          <tr><td>Proposal velocity</td><td>Create a new proposal in <strong>&lt; 15 minutes</strong> via chat (vs. hours today)</td><td>Faster turnaround = more rounds before the client cools</td></tr>
+          <tr><td>Re-cost speed</td><td><strong>&lt; 2 minutes</strong> to re-cost an expiring proposal against current prices</td><td>Quotes die at expiry; cheap re-cost saves them</td></tr>
+          <tr><td>Edit-to-render</td><td>Natural-language edit reflects in the PDF in <strong>&lt; 30 seconds</strong></td><td>Negotiation rounds become same-day, not next-week</td></tr>
+          <tr><td>Lead drop-rate</td><td><strong>0 false-negatives</strong> on stale-lead detection (Watchdog Agent)</td><td>Each lost lead is real money in low-volume / high-ticket</td></tr>
+          <tr><td>Document fidelity</td><td>Generated PDF is <strong>visually indistinguishable</strong> from the Thermax reference</td><td>The proposal is a brand artefact — must look like Sorigin's</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        For sizing context: Sorigin's pipeline is <strong>hundreds of
+        polished proposals per year, not thousands of cheap ones</strong>.
+        Re-Votex is sized accordingly — concurrent-user counts in the dozens,
+        not hundreds.
+      </p>
+    </section>
+
+    <!-- ============ §4 STAKEHOLDERS & PERSONAS ============ -->
+    <section id="personas">
+      <h2><span class="section-num">4</span>Stakeholders &amp; personas</h2>
+      <p class="section-lede">Who uses Re-Votex, what they need, and where today's process frustrates them.</p>
+
+      <figure class="brd-figure">
+        <img src="REBD%20Structure.png" alt="Sorigin organisation structure" loading="lazy">
+        <figcaption><strong>Figure 4.1 — Sorigin organisation structure.</strong>&nbsp; The teams and reporting lines that Re-Votex serves. <strong>Anuja</strong> (Telecaller / BD team member) surfaces leads and hands them off to BD; BD reports to BD Head; Divakar handles compliance and capacity validation across proposals.</figcaption>
+      </figure>
+
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-avatar">SK</div>
+          <div>
+            <div class="persona-title">Anuja — Telecaller</div>
+            <div class="persona-role">Lead-generation team · primary tool: Freshsales</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-col"><h5>Goal</h5><p>Convert leads from cold to warm; never lose a callback.</p></div>
+          <div class="persona-col"><h5>Frustration</h5><p>Tracking who is at what stage in Excel; chasing documents over Email.</p></div>
+          <div class="persona-col"><h5>Re-Votex value</h5><p>Lead state and callback dates surface automatically (Phase 2 — Freshsales integration).</p></div>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-avatar">GG</div>
+          <div>
+            <div class="persona-title">Gaurav Gandhi — BD Head</div>
+            <div class="persona-role">Heads the BD team; oversees the pipeline across all regions</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-col"><h5>Goal</h5><p>Make sure nothing in the inbox sits unassigned more than a day; spot stalled proposals before they expire.</p></div>
+          <div class="persona-col"><h5>Frustration</h5><p>No team-wide view of who is overloaded vs. underloaded. Stalled proposals are invisible.</p></div>
+          <div class="persona-col"><h5>Re-Votex value</h5><p>"New Deals for Assignment" rail; right-side Activity sidebar with team-wide sections (Unassigned · Recently assigned · Stalled · Expiring soon).</p></div>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-avatar">MY</div>
+          <div>
+            <div class="persona-title">Mayank — Core BD &amp; Sales</div>
+            <div class="persona-role">Retail + BESS, Pan-India · representative of the regional BD team (Ritesh, Diwakar, Kanhaiya, Syed Abutahir, Saad, Prasant cover specific states)</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-col"><h5>Goal</h5><p>Resume work fast; never miss what's been assigned to him; close before quote expiry.</p></div>
+          <div class="persona-col"><h5>Frustration</h5><p>Rebuilding the proposal Word file every round; remembering which version was sent.</p></div>
+          <div class="persona-col"><h5>Re-Votex value</h5><p>"Your new assignments" rail; chat-driven structured edits → deterministic PDF; version history baked in.</p></div>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="persona-header">
+          <div class="persona-avatar">DV</div>
+          <div>
+            <div class="persona-title">Divakar — Compliance &amp; Capacity Calculation</div>
+            <div class="persona-role">Validates regulatory compliance and verifies capacity figures across proposals before client submission</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-col"><h5>Goal</h5><p>Confirm that every proposal's capacity sizing and compliance parameters are accurate and regulation-ready before it reaches the client.</p></div>
+          <div class="persona-col"><h5>Frustration</h5><p>BD sends over Excel files and Word docs; spotting a miscalculation means back-and-forth over Email with no version trail.</p></div>
+          <div class="persona-col"><h5>Re-Votex value</h5><p>Capacity variables are explicit structured fields — Divakar can audit figures directly in the proposal without chasing BD for the source file.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ §5 USER JOURNEY ============ -->
+    <section id="journey">
+      <h2><span class="section-num">5</span>End-to-end user journey</h2>
+      <p class="section-lede">From the first phone call to a signed contract — every role's touchpoint along the way.</p>
+
+      <figure class="brd-figure">
+        <img src="workflow%20diagram.png" alt="Re-Votex end-to-end workflow" loading="lazy">
+        <figcaption><strong>Figure 5.1 — End-to-end workflow.</strong>&nbsp; High-level visual of how a lead moves through the system, from telecaller capture to a signed proposal.</figcaption>
+      </figure>
+
+      <p>
+        A lead enters at the top (telecaller) and either signs (Win) or
+        falls out at the bottom. Each <em>vertical band</em> below is a role;
+        the <em>messages</em> between bands are handoffs. The dashed line
+        marks the lifecycle transition from "lead" to "proposal."
+      </p>
+
+      <p>
+        For the BD Head, the key handoff is <em>green-card visual
+        confirmation</em>: once they've assigned a lead, the rail card tints
+        green, and an event lands in the Activity sidebar's "Recently
+        assigned" section. The BD sees a fresh green card waiting on their
+        own dashboard the moment they log in.
+      </p>
+    </section>
+
+    <!-- ============ §6 LEAD LIFECYCLE ============ -->
+    <section id="lifecycle">
+      <h2><span class="section-num">6</span>Lead lifecycle</h2>
+      <p class="section-lede">The three states a lead passes through inside Re-Votex, and what changes the UI surface as each transition fires.</p>
+
+
+      <table>
+        <thead><tr><th>State</th><th>Lead field</th><th>BD Head's view</th><th>BD's view</th><th>Activity sidebar</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Unassigned</strong></td>
+            <td><code>assignedTo[]</code> empty, <code>!converted</code></td>
+            <td>White card in New Deals rail</td>
+            <td>Not visible</td>
+            <td>Head: "Unassigned leads"</td>
+          </tr>
+          <tr>
+            <td><strong>Assigned</strong></td>
+            <td><code>assignedTo[]</code> populated, <code>!converted</code></td>
+            <td>Green card in New Deals rail</td>
+            <td>Top of "Your new assignments"</td>
+            <td>Head: "Recently assigned" · BD: "Assigned to you"</td>
+          </tr>
+          <tr>
+            <td><strong>In progress</strong></td>
+            <td><code>converted: true</code> + <code>convertedAt</code></td>
+            <td>Removed from rail</td>
+            <td>Removed from rail; appears in proposal list</td>
+            <td>Removed from lead sections; shows up under "In progress" proposals</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        The Won / Lost terminal states are reached by the proposal, not the
+        lead. Once the lead is <em>in progress</em>, the proposal becomes the
+        source of truth and the lead remains as a historical reference.
+      </p>
+    </section>
+
+    <!-- ============ §7 FUNCTIONAL REQUIREMENTS ============ -->
+    <section id="functional">
+      <h2><span class="section-num">7</span>Functional requirements</h2>
+      <p class="section-lede">Grouped by user role. Each story has acceptance criteria. Status badges flag what's already shipped in M1.</p>
+
+      <h3>BD Head stories</h3>
+
+      <div class="user-story">
+        <div class="as-a">As a BD Head <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want to see every active lead in one place, colour-coded by whether I've assigned it yet, so I can triage at a glance.</div>
+        <div class="ac"><strong>Acceptance:</strong> New Deals for Assignment rail on dashboard shows all non-converted leads. White card = unassigned. Green card = assigned. Cards I've assigned visibly persist (green) until the BD picks them up.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD Head <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want to assign a lead to one or more BDs from the card, so I don't have to switch tools to delegate.</div>
+        <div class="ac"><strong>Acceptance:</strong> Clicking a card opens a modal with toggleable team-member chips. Save persists the assignment, stamps <code>assignedAt</code>, and updates the rail card colour and Activity sidebar in real time.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD Head <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want a team-wide activity surface so I can spot stalled work, expiring proposals, and recent wins without filtering manually.</div>
+        <div class="ac"><strong>Acceptance:</strong> Right-side Activity sidebar shows team-wide sections — Unassigned leads · Recently assigned · Team in progress · Awaiting reply · Expiring soon · Stalled · Won recently.</div>
+      </div>
+
+      <h3>BD stories</h3>
+
+      <div class="user-story">
+        <div class="as-a">As a BD <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want to see only the new assignments I need to act on, at the top of my dashboard, so I don't drown in team-wide noise.</div>
+        <div class="ac"><strong>Acceptance:</strong> "Your new assignments" rail on the BD's dashboard shows only non-converted leads where my id is in <code>assignedTo[]</code>. All cards are green-tinted.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want to read everything about a lead — telecaller conversation, attached documents, site imagery — and then start a proposal in one click.</div>
+        <div class="ac"><strong>Acceptance:</strong> LeadDetailModal exposes tabbed Main / Notes / Media / Uploaded views + an embedded AI chat panel. "Go to Proposal" closes the modal, flips <code>converted: true</code>, and opens the new-proposal wizard.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD <span class="badge badge-pending">Pending M2</span></div>
+        <div class="story">I want to edit the proposal in natural language ("change advance to 15%, OMS to 5 years"), and have the PDF re-render automatically.</div>
+        <div class="ac"><strong>Acceptance:</strong> Chat panel in the proposal editor accepts NL input; the AI service interprets it as a tool call, the block model is updated, and the PDF preview refreshes within 30 seconds.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD <span class="badge badge-pending">Pending M2</span></div>
+        <div class="story">I want one button to re-cost an expiring proposal against today's prices.</div>
+        <div class="ac"><strong>Acceptance:</strong> "Re-cost" button on the proposal triggers the pricing service. The proposal's variables are updated, the PDF is re-rendered, and the revision is incremented.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As a BD <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want a working notebook attached to each proposal — my own text notes, Excel files, site photos — that survives across sessions.</div>
+        <div class="ac"><strong>Acceptance:</strong> BD Notes tab in the proposal editor is a unified timeline of entries (text + any combination of attached files / images). Posts persist (M1: localStorage; M2: backend).</div>
+      </div>
+
+      <h3>Shared / system stories</h3>
+
+      <div class="user-story">
+        <div class="as-a">As any user <span class="badge badge-locked">Shipped</span></div>
+        <div class="story">I want my role to be detected at login so the UI tailors itself to my work, without me picking a mode.</div>
+        <div class="ac"><strong>Acceptance:</strong> Login form routes by email pattern — <code>rajiv...</code> → BD Head, anything else → BD. M2 replaces this with JWT-driven role from the auth endpoint.</div>
+      </div>
+
+      <div class="user-story">
+        <div class="as-a">As any user <span class="badge badge-pending">Pending M2</span></div>
+        <div class="story">I want a Watchdog agent to surface stale leads and expiring proposals without me having to ask, so nothing falls through.</div>
+        <div class="ac"><strong>Acceptance:</strong> Scheduled job (node-cron) scans daily and writes alerts that surface in the Activity sidebar.</div>
+      </div>
+    </section>
+
+    <!-- ============ §8 NON-FUNCTIONAL REQUIREMENTS ============ -->
+    <section id="nonfunctional">
+      <h2><span class="section-num">8</span>Non-functional requirements</h2>
+      <p class="section-lede">Performance, security, and scale targets the system must meet.</p>
+
+      <table>
+        <thead><tr><th style="width:25%;">Category</th><th>Target</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Latency</strong></td><td>p95 API response &lt; 500 ms for read endpoints, &lt; 2 s for proposal mutations, &lt; 30 s for PDF render</td><td>Negotiation rounds shouldn't wait on the tool</td></tr>
+          <tr><td><strong>Throughput</strong></td><td>Hundreds of concurrent proposals (not thousands)</td><td>Sorigin's actual deal volume — sizing accordingly avoids over-engineering</td></tr>
+          <tr><td><strong>Availability</strong></td><td>99% during business hours (~7am-9pm IST). Off-hours window for deploys.</td><td>Internal tool; off-hours downtime is acceptable</td></tr>
+          <tr><td><strong>Security</strong></td><td>JWT auth (HS256, secret rotated quarterly). httpOnly cookies. HTTPS only. No PII in logs.</td><td>Customer names + commercial terms are sensitive</td></tr>
+          <tr><td><strong>Data durability</strong></td><td>MongoDB daily snapshot to S3; 30-day retention. S3 versioning on file buckets.</td><td>Proposals are contractual artefacts</td></tr>
+          <tr><td><strong>Recovery</strong></td><td>RPO 24h, RTO 4h (single-instance MVP). Improves with multi-AZ in Phase 3.</td><td>Acceptable for internal-use lean-team posture</td></tr>
+          <tr><td><strong>Browser support</strong></td><td>Chrome / Edge / Safari current minus two versions; Firefox best-effort</td><td>The team uses Chrome</td></tr>
+          <tr><td><strong>Accessibility</strong></td><td>Keyboard-navigable; sufficient colour contrast (Helio palette tested); aria-labels on icon buttons</td><td>Good practice; widens hiring pool later</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ §9 SYSTEM ARCHITECTURE ============ -->
+    <section id="architecture">
+      <h2><span class="section-num">9</span>System architecture</h2>
+      <p class="section-lede">The boxes, the arrows, and where each chunk of logic lives.</p>
+
+      <p>
+        Re-Votex is a <strong>monolithic Node service</strong> for M1.5 — one
+        process serves the API, runs Puppeteer for PDF rendering, talks to
+        Anthropic Claude for AI tool-calls, and exposes scheduled jobs via
+        <code>node-cron</code>. We split a separate PDF worker only if and
+        when rendering becomes a real bottleneck (post-M2). The React frontend
+        is served by the same Express process to keep the deploy story
+        simple. <strong>MongoDB</strong> holds structured data;
+        <strong>S3</strong> holds binary uploads. Hosting is a single
+        <strong>EC2</strong> instance.
+      </p>
+
+      <div class="mermaid-wrap">
+        <div class="mermaid-caption">Figure 9.1 — Top-level system topology</div>
+        <pre class="mermaid">
+graph TD
+  Browser[Browser<br/>React · Vite · Helio]
+  API[Express API · Node 22<br/>Plain JS · ESM]
+  AI[aiService<br/>Anthropic SDK · prompt caching]
+  PDF[pdfService<br/>Puppeteer · HTML→PDF]
+  Price[pricingService<br/>module ₹/Wp · FX · MMS]
+  Render[proposalRenderer<br/>block model → HTML]
+  Cron[cronRunner<br/>node-cron]
+  Activity[activityService<br/>role-aware feeds]
+  FS[freshsalesService<br/>REST client · Phase 2]
+
+  DB[(MongoDB · Mongoose<br/>users · leads · proposals<br/>workspaces · priceSheets)]
+  S3[(S3<br/>lead-uploads · bd-attachments<br/>rendered-pdfs)]
+  Claude[Anthropic Claude<br/>Sonnet default · Opus on hard tasks]
+  Freshsales[Freshsales REST API]
+
+  Browser -->|HTTPS · JSON| API
+  API --> AI
+  API --> PDF
+  API --> Price
+  API --> Render
+  API --> Activity
+  API --> FS
+  Cron --> API
+  AI --> Claude
+  API --> DB
+  API --> S3
+  FS --> Freshsales
+
+  classDef external fill:#fff5db,stroke:#d3a14a,color:#6e521f
+  class Claude,Freshsales external
+        </pre>
+      </div>
+
+      <h3>Component responsibilities</h3>
+      <table>
+        <thead><tr><th>Component</th><th>Responsibility</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>aiService</code></td><td>Wraps the Anthropic SDK. Loads prompts from <code>backend/src/ai/prompts/*.md</code>. Always enables prompt caching.</td><td>Default model: latest Sonnet for chat; Opus for tool-use loops</td></tr>
+          <tr><td><code>pdfService</code></td><td>Takes rendered HTML, runs Puppeteer headless, returns a PDF buffer or stores to S3.</td><td>Single Chrome instance reused across requests</td></tr>
+          <tr><td><code>pricingService</code></td><td>Owns module $/W, inverter prices, MMS rate, copper/Al cable, INR/USD FX. One getCurrentPrices call per vertical.</td><td>Manual price-sheet admin UI in M2; live feeds Phase 3</td></tr>
+          <tr><td><code>proposalRenderer</code></td><td>Walks the proposal's <code>{ vars, blocks }</code> document, substitutes variables, emits HTML.</td><td>Vertical-pluggable: <code>backend/src/verticals/&lt;vertical&gt;/template.html</code></td></tr>
+          <tr><td><code>activityService</code></td><td>Computes the role-aware feed sections shown in the right Activity sidebar.</td><td>M1: derived on render. M2: optional persisted event log.</td></tr>
+          <tr><td><code>freshsalesService</code></td><td>Bidirectional sync — read leads, push proposal status back.</td><td>Phase 2 only</td></tr>
+          <tr><td><code>cronRunner</code></td><td>Schedules in code (<code>backend/src/jobs/</code>): daily Watchdog scan, hourly expiry-alert check, weekly stale-proposal flag.</td><td>Jobs are idempotent</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ §10 PROPOSAL EDITING ============ -->
+    <section id="editing">
+      <h2><span class="section-num">10</span>Proposal-editing flow</h2>
+      <p class="section-lede">How a chat message turns into a structured update and a re-rendered PDF.</p>
+
+
+      <p>
+        The key invariant: <strong>the AI never produces PDF prose
+        directly</strong>. It only emits tool calls against a fixed schema of
+        operations (<code>update_var</code>, <code>update_block</code>,
+        <code>add_clause</code>, etc.). The renderer is deterministic — the
+        same proposal document always produces the same PDF. This is the
+        "structured data → PDF, never freeform LLM blob" principle from
+        <code>CLAUDE.md</code>.
+      </p>
+    </section>
+
+    <!-- ============ §11 RE-COST FLOW ============ -->
+    <section id="recost">
+      <h2><span class="section-num">11</span>Re-cost flow</h2>
+      <p class="section-lede">What happens when a quote ages out and prices have moved.</p>
+
+      <div class="mermaid-wrap">
+        <div class="mermaid-caption">Figure 11.1 — Re-cost on expiry, scheduled or user-initiated</div>
+        <pre class="mermaid">
+sequenceDiagram
+  participant Cron as cronRunner<br/>(daily 09:00 IST)
+  participant API as Express API
+  participant DB as MongoDB
+  participant Price as pricingService
+  participant U as BD
+  participant R as proposalRenderer
+  participant PDF as pdfService
+  participant Notif as Notifications<br/>(WhatsApp/email · Phase 2)
+
+  Cron->>API: GET expiring proposals (≤ 7 days)
+  API->>DB: Query proposals where expiresAt - now ≤ 7d
+  DB-->>API: [proposal list]
+  alt User-initiated
+    U->>API: POST /proposals/:id/recost
+  end
+  API->>Price: getCurrentPrices(vertical)
+  Price->>DB: priceSheets.findOne({ vertical, effectiveTo: null })
+  Price-->>API: { modulePerWp, fx, mmsRate, ... }
+  API->>API: Recompute proposal.vars
+  API->>DB: Update proposal · bump revision
+  API->>R: render(updated proposal)
+  R-->>API: HTML
+  API->>PDF: render(html)
+  PDF-->>API: PDF → S3
+  API->>Notif: "Quote refreshed for {customer}: ₹X Cr"
+  API-->>U: { updatedProposal, pdfUrl } (on UI re-cost)
+        </pre>
+      </div>
+    </section>
+
+    <!-- ============ §12 AUTH FLOW ============ -->
+    <section id="auth">
+      <h2><span class="section-num">12</span>Auth flow</h2>
+      <p class="section-lede">Login, token issuance, refresh. Single-tenant, JWT-based, no external IdP yet.</p>
+
+      <div class="mermaid-wrap">
+        <div class="mermaid-caption">Figure 12.1 — Email/password login and token refresh</div>
+        <pre class="mermaid">
+sequenceDiagram
+  participant U as User
+  participant UI as Login screen
+  participant API as Express API
+  participant DB as MongoDB
+
+  U->>UI: Enter email + password
+  UI->>API: POST /api/v1/auth/login
+  API->>DB: Find user by email
+  DB-->>API: { passwordHash, role, ... }
+  API->>API: bcrypt.compare(password, hash)
+  alt Match
+    API->>API: Sign access JWT (15min) + refresh JWT (7d)
+    API-->>UI: Set httpOnly · secure · SameSite=lax cookies
+    UI-->>U: Redirect to dashboard
+  else No match
+    API-->>UI: 401 { error: { code: "UNAUTHORIZED" } }
+    UI-->>U: "Invalid credentials"
+  end
+  Note over UI,API: Subsequent API calls
+  UI->>API: Any /api/* (cookie auto-attached)
+  API->>API: Verify access JWT
+  alt Valid
+    API-->>UI: 200 response
+  else Expired
+    UI->>API: POST /api/v1/auth/refresh
+    API->>API: Verify refresh JWT
+    API-->>UI: New access JWT (cookie)
+    UI->>API: Retry original request
+  end
+        </pre>
+      </div>
+
+      <p>
+        Phase 3 adds Google Workspace / Microsoft SSO buttons (already
+        decorative in the current login form). Phase 4 considers a real IdP
+        like Cognito or Auth0 — but only if the team grows past the point
+        where managing users by hand becomes painful.
+      </p>
+    </section>
+
+    <!-- ============ §13 UI SURFACES ============ -->
+    <section id="ui">
+      <h2><span class="section-num">13</span>UI surfaces</h2>
+      <p class="section-lede">The ten primary screens of Re-Votex. Screenshot captures will be added once the Chrome DevTools MCP is active in the dev environment — placeholders below describe each surface.</p>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15 L16 10 L5 21"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>1. Login screen.</strong>&nbsp; Split layout · email/password form on the left, dark green hero with proposals-shipped stats and an attributed quote on the right. Google / Microsoft SSO buttons present but decorative.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9 H21"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>2. Dashboard — BD view (Mayank).</strong>&nbsp; Greeting · KPI strip (My open / pipeline / in-review / expiring / won) · "Your new assignments" rail with only his assigned leads, all green-tinted · Proposal list (default filter: Mine). Right side: Activity sidebar with Assigned-to-you · In progress · Awaiting reply · Expiring soon · Won recently.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9 H21 M9 21 V9"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>3. Dashboard — BD Head view (Gaurav).</strong>&nbsp; Same shell, role-aware content: New Deals for Assignment rail with a mix of white (unassigned) and green (assigned) cards. KPI strip shows team-wide values. Right Activity sidebar: Unassigned leads · Recently assigned · Team in progress · Stalled · Won recently.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="6" width="6" height="12" rx="1"/><rect x="11" y="6" width="6" height="12" rx="1"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>4. New Deals card — close-up.</strong>&nbsp; Top-left: source label (PARTNER CHANNEL · INBOUND LEAD · REFERRAL) in uppercase micro-type. Top-right: capacity chip (TBD or "1.2 MWp"). Customer name in bold. Location · project-type row with map-pin icon. Stacked team-member avatars and an Assign button at the bottom.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8 H17 M7 12 H13 M7 16 H10"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>5. LeadDetailModal — Head view.</strong>&nbsp; 1112×700 modal · "Go to Proposal" button in the header right · 4-tab navigation (Main / Notes / Media / Uploaded) · Main tab shows source meta + Assign-to-team chips (active and toggleable) · embedded AI chat panel on the right with stubbed Helio replies · footer with Cancel + green Save (150×36).
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8 H17 M7 12 H13 M7 16 H10"/><circle cx="18" cy="18" r="3"/><path d="M16 16 L20 20"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>6. LeadDetailModal — BD view.</strong>&nbsp; Same modal · section heading reads "Working on this lead" · assign chips are disabled (display state, no toggle on click) · footer has Cancel only (no Save) · Go to Proposal remains in the header.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="9" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>7. Proposal Editor — Chat tab + PDF preview.</strong>&nbsp; 55/45 split · left: chat panel with composer · right: PDF preview with section outline button at top-left, zoom controls and Share/Export at top-right · multi-page Thermax-style proposal scrolls vertically.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 13 H8 L9.5 16 H14.5 L16 13 H21"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>8. Proposal Editor — Lead Notes tab.</strong>&nbsp; Read-only carry-over from the originating lead · Source meta block · Telecaller conversation in <code>.lead-convo</code> styling · Follow-up notes · Documents from the lead · Site imagery grid.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 4 L20 10 L9 21 H3 V15 Z"/><path d="M13 5 L19 11"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>9. Proposal Editor — BD Notes tab.</strong>&nbsp; Sticky composer at top (textarea + paperclip attach + Post button) · Staged attachment chips below textarea · Feed below with 5 seed entries (mix of text, text+xlsx, text+images, text+pdf) newest-first · Hover entry shows × delete.
+        </figcaption>
+      </figure>
+
+      <figure class="screenshot-placeholder">
+        <div class="ph-stage">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="9" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="15" cy="18" r="1.2"/></svg>
+          <span class="ph-pending">Screenshot pending</span>
+        </div>
+        <figcaption class="ph-caption">
+          <strong>10. PDF section outline expanded.</strong>&nbsp; Floating ☰ button at top-left of the preview opens a 260px panel listing the 11 numbered sections (Executive Summary · Site Details · … · Annexures). Click a section → preview smooth-scrolls to that heading.
+        </figcaption>
+      </figure>
+
+      <div class="callout info">
+        <strong>Where the visual language is defined.</strong> Every surface
+        above uses the Helio design system — see
+        <a href="design-system.html"><code>design-system.html</code></a> for
+        the live token + component reference, and
+        <a href="figma-handoff.html"><code>figma-handoff.html</code></a> for
+        the Figma team's import kit.
+      </div>
+    </section>
+
+    <!-- ============ §14 PHASING ============ -->
+    <section id="phasing">
+      <h2><span class="section-num">14</span>Phasing roadmap</h2>
+      <p class="section-lede">What we deliver in what order. Timeframes are rough and assume a lean team continuing the current cadence.</p>
+
+      <div class="phase phase-current">
+        <div class="phase-label">Now · shipped</div>
+        <div class="phase-name">M1 — UI shell</div>
+        <p style="font-size:13px;color:var(--ink-2);">React frontend complete with seed data, role-based dashboards, lead lifecycle, BD Notes timeline, embedded AI chat in the lead modal (stubbed), section outline on the PDF preview. Activity sidebar with role-aware sections. Helio design system documented and handed off to the Figma team.</p>
+        <div class="phase-deliv">
+          <strong>Deliverables</strong>
+          <ul>
+            <li>Login (email-routed role) · Dashboard (BD + Head views)</li>
+            <li>New Deals rail with assigned/unassigned colour states</li>
+            <li>LeadDetailModal — tabbed, role-gated, with chat panel</li>
+            <li>Proposal Editor — chat · variables · lead notes · BD notes · history</li>
+            <li>Right Activity sidebar — role-aware, derived feed</li>
+            <li><code>docs/design-system.html</code> · <code>docs/design-tokens.json</code></li>
+            <li>GitHub remote: <code>SoriginIT/re-votex-ui</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-label">Next · ~2 weeks</div>
+        <div class="phase-name">M1.5 — Backend bootstrap</div>
+        <p style="font-size:13px;color:var(--ink-2);">Stand up the Express API, Mongoose models, JWT auth, leads/proposals CRUD, BD-notes API (replaces localStorage), AWS deploy to a single EC2 instance. No AI / PDF / pricing yet — just real persistence.</p>
+        <div class="phase-deliv">
+          <strong>Deliverables</strong>
+          <ul>
+            <li>Express app · Mongoose · pino logging · <code>.env</code> · pm2</li>
+            <li>JWT auth (login · refresh · logout · me)</li>
+            <li>Leads CRUD + assign + convert endpoints</li>
+            <li>Proposals CRUD endpoints</li>
+            <li>Workspace endpoint (BD Notes replacement)</li>
+            <li>EC2 t3.small + Atlas free-tier MongoDB + UptimeRobot</li>
+            <li>GitHub Actions CI/CD → SSH rsync deploy</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-label">After · ~4–6 weeks</div>
+        <div class="phase-name">M2 — AI + PDF + pricing</div>
+        <p style="font-size:13px;color:var(--ink-2);">Wire Anthropic for chat-driven proposal edits, Puppeteer for HTML→PDF, pricing service + admin price-sheet UI, re-cost endpoint, S3 for uploads. Freshsales read-only sync (daily cron).</p>
+        <div class="phase-deliv">
+          <strong>Deliverables</strong>
+          <ul>
+            <li>aiService with prompt files + caching · /chat endpoint</li>
+            <li>pdfService · /:id/pdf endpoint · S3 storage</li>
+            <li>pricingService · admin UI · /price-sheets endpoints</li>
+            <li>/:id/recost endpoint</li>
+            <li>S3 presigned uploads — replace localStorage data URLs</li>
+            <li>Freshsales read-only sync (cron daily)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-label">Later · 2+ months</div>
+        <div class="phase-name">M3+ — Verticals + multi-channel</div>
+        <p style="font-size:13px;color:var(--ink-2);">Wind vertical (drop a folder under <code>verticals/</code>, no code rewrite), Freshsales bi-directional sync (push proposal status back), Watchdog Agent alerts, WhatsApp/email ingest, design-team CAD integration.</p>
+        <div class="phase-deliv">
+          <strong>Deliverables (ordered, but not all in one go)</strong>
+          <ul>
+            <li>Wind vertical config + template</li>
+            <li>Freshsales bidirectional sync</li>
+            <li>Watchdog Agent (scheduled scans + WhatsApp/email digests)</li>
+            <li>BESS, hybrid verticals</li>
+            <li>Multi-channel ingest pipelines</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ §15 RISKS & ASSUMPTIONS ============ -->
+    <section id="risks">
+      <h2><span class="section-num">15</span>Risks &amp; assumptions</h2>
+
+      <h3>Risks</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Pixel-faithful PDF rendering diverges from Thermax reference</td><td>Medium</td><td>Visual diffs against the reference PDF on every template change; keep Puppeteer's Chrome version pinned</td></tr>
+          <tr><td>Anthropic API rate limits or outages break the chat-edit flow</td><td>Low-medium</td><td>Prompt caching reduces cost / call volume; degrade gracefully to a "system unavailable" UI; queue retries</td></tr>
+          <tr><td>Single EC2 instance fails during business hours</td><td>Low</td><td>Daily MongoDB snapshots to S3; UptimeRobot alert; recovery within 4 hours; multi-AZ in Phase 3</td></tr>
+          <tr><td>Freshsales API changes break the sync</td><td>Low</td><td>Sync runs in a separate module with its own retry/backoff and clear error reporting; manual fallback always available</td></tr>
+          <tr><td>Real price data is slow to land — re-cost still feels manual</td><td>Medium</td><td>Admin-friendly price-sheet UI in M2; live feeds (NSE, OPIS) Phase 3</td></tr>
+          <tr><td>Solo / lean team can't keep up with feature requests</td><td>High</td><td>Strict M1 → M1.5 → M2 phasing; out-of-scope list defended; design system locked so visuals don't sprawl</td></tr>
+          <tr><td>Roles in real use are richer than just BD / BD Head (e.g., legal, finance)</td><td>Medium</td><td>JWT-driven role model accepts arbitrary role strings; UI gating is centralised in a single map for cheap extension</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Assumptions</h3>
+      <ul>
+        <li>Sorigin's deal volume stays in the hundreds-per-year range. Sizing for thousands would push us toward multi-instance hosting and a job queue.</li>
+        <li>Sorigin will continue to use Freshsales as the lead-management CRM of record. Re-Votex never tries to replace it.</li>
+        <li>The Thermax-style PDF format is acceptable as the canonical Sorigin format. If a major rebrand happens, the template changes but the architecture doesn't.</li>
+        <li>JavaScript on both sides of the wire remains the team's preferred language. TypeScript was considered and explicitly declined for the lean-team posture.</li>
+        <li>MongoDB's schemaless nature is acceptable for proposal documents whose shape varies by vertical. Migrations are versioned but light.</li>
+      </ul>
+
+      <h3>Explicitly out of scope</h3>
+      <ul>
+        <li><strong>Multi-user / multi-tenant.</strong> Re-Votex is single-tenant inside Sorigin. White-labelling for other EPCs is not on the roadmap.</li>
+        <li><strong>Replacing Freshsales as the CRM.</strong> Lead lifecycle inside Re-Votex starts post-handoff.</li>
+        <li><strong>Document OCR.</strong> Electricity-bill data extraction is Phase 2 at earliest.</li>
+        <li><strong>Real-time price feeds.</strong> Manual price-sheet entry in M2; automated feeds Phase 3.</li>
+        <li><strong>Wind / BESS / hybrid verticals.</strong> Architecture is plug-ready; only solar ships in M1.</li>
+        <li><strong>Mobile app.</strong> Phase 3+ at earliest.</li>
+        <li><strong>Investor / pitch-deck slides.</strong> Distinct artefact; not a BRD concern.</li>
+      </ul>
+    </section>
+
+    <!-- ============ §16 GLOSSARY ============ -->
+    <section id="glossary">
+      <h2><span class="section-num">16</span>Glossary</h2>
+      <table>
+        <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BD</strong></td><td>Business Development — Sorigin team member responsible for negotiating and closing a deal</td></tr>
+          <tr><td><strong>BD Head</strong></td><td>Head of Business Development — oversees the BD team and assigns leads</td></tr>
+          <tr><td><strong>BESS</strong></td><td>Battery Energy Storage System — increasingly bundled with solar projects</td></tr>
+          <tr><td><strong>BANT</strong></td><td>Budget · Authority · Need · Timeline — sales-qualification framework</td></tr>
+          <tr><td><strong>EPC</strong></td><td>Engineering, Procurement, and Construction — the type of contract Sorigin delivers</td></tr>
+          <tr><td><strong>FX</strong></td><td>Foreign exchange rate — relevant because solar modules are dollar-priced</td></tr>
+          <tr><td><strong>Helio</strong></td><td>Re-Votex's internal design system — colours, typography, components</td></tr>
+          <tr><td><strong>kWp / MWp</strong></td><td>Kilowatt-peak / Megawatt-peak — DC capacity rating of a solar installation</td></tr>
+          <tr><td><strong>MMS</strong></td><td>Module Mounting Structure — the steel framing that holds solar panels in place</td></tr>
+          <tr><td><strong>NTP</strong></td><td>Notice to Proceed — formal contractual go-ahead to start work</td></tr>
+          <tr><td><strong>OMS</strong></td><td>Operations &amp; Maintenance Services — recurring service contract, usually 5–25 years</td></tr>
+          <tr><td><strong>SRESPL</strong></td><td>Sorigin Renewable Energy Solutions Pvt Ltd — the company building Re-Votex</td></tr>
+          <tr><td><strong>Thermax</strong></td><td>The reference proposal format Re-Votex's PDF render must match pixel-for-pixel</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ §17 CHANGE LOG ============ -->
+    <section id="changelog">
+      <h2><span class="section-num">17</span>Change log</h2>
+      <table>
+        <thead><tr><th style="width:130px;">Date</th><th style="width:80px;">Version</th><th>What changed</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>May 12, 2026</td>
+            <td>0.1</td>
+            <td>Initial draft. Phase A complete (all text + 7 Mermaid diagrams + 10 screenshot placeholders). Phase B — real screenshot capture via Chrome DevTools MCP — pending.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <footer class="footer">
+        <p>
+          <strong>Related documents</strong> ·
+          <a href="milestone-1.html">milestone-1.html</a> ·
+          <a href="business-context.md">business-context.md</a> ·
+          <a href="design-system.html">design-system.html</a> ·
+          <a href="figma-handoff.html">figma-handoff.html</a> ·
+          <a href="proposal-schema.md">proposal-schema.md</a> ·
+          <a href="../CLAUDE.md">CLAUDE.md</a>
+        </p>
+        <p>Pending review by Dhara. Send corrections to neel.shah@sorigin.co.</p>
+      </footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#dceee2',
+      primaryTextColor: '#0f1815',
+      primaryBorderColor: '#3aa372',
+      lineColor: '#5b6661',
+      secondaryColor: '#f6f2e4',
+      tertiaryColor: '#f3f3ef',
+      fontFamily: "'Inter', sans-serif",
+    }
+  });
+</script>
+
+</body>
+</html>
